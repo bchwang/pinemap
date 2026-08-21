@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>양지파인리조트/CC 시설물 관리 종합 맵</title>
+    <!-- 모바일 및 태블릿 화면에 맞게 자동 조절 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 지도 라이브러리 (Leaflet CSS) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- 구글 파이어베이스(Firebase) 데이터베이스 라이브러리 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        #map { height: 100%; width: 100%; }
+        
+        /* 우측 상단 사용 설명서 UI */
+        .info-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 12px 12px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            max-width: 300px;
+            font-family: 'Malgun Gothic', sans-serif;
+            border: 2px solid #2c3e50;
+        }
+        
+        /* 로고 스타일 */
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .brand-logo img {
+            max-height: 35px; /* 로고가 너무 크지 않도록 최적화 */
+            width: auto;
+        }
+
+        /* 텍스트 라벨(홀 이름) 스타일 */
+        .custom-tooltip {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #fff;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            font-size: 11px; padding: 2px 5px; 
+        }
+        
+        /* 팝업 수정창 스타일 */
+        .editable-popup {
+            font-weight: bold; padding: 5px; border: 1px dashed #3498db; outline: none;
+            min-width: 120px; text-align: center; font-size: 13px; 
+        }
+        
+        /* 스마트폰(모바일) 화면일 때 설명창 자동 축소 */
+        @media (max-width: 600px) {
+            .info-panel {
+                top: auto; bottom: 20px; right: 10px; left: 10px; max-width: none;
+                padding: 10px; font-size: 11px;
+            }
+            .brand-logo img { max-height: 25px; } /* 모바일에서는 로고 크기 축소 */
+            .info-panel h3 { font-size: 14px; margin-bottom: 5px; }
+            .info-panel ul { padding-left: 15px; }
+            .info-panel .legend { display: none; } /* 모바일에서는 범례 숨김 */
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 지도가 표시될 영역 -->
+    <div id="map"></div>
+
+    <!-- 사용자 가이드 패널 -->
+    <div class="info-panel">
+        <!-- ★ 브랜드 로고 삽입 구역 -->
+        <div class="brand-logo">
+            <img src="logo.png" alt="파인리조트 로고">
+        </div>
+        
+        <h3 style="margin-top:0; color:#2c3e50; font-size:15px; text-align:center;">시설물 종합 관리 맵</h3>
+        <div class="legend" style="background: #f8f9fa; padding: 6px; border-radius: 5px; margin-bottom: 8px; font-size: 12px;">
+            🔵 파란색(일반) 🔴 빨간색(위험) 🟠 주황색(보수)
+        </div>
+        <ul style="font-size: 12px; margin-bottom: 0;">
+            <li><b>이동:</b> 마커 <b>드래그</b></li>
+            <li><b>추가:</b> 빈 곳 <b>터치/클릭</b></li>
+            <li><b>수정:</b> 마커 터치 후 말풍선 텍스트 조작</li>
+            <li style="color: #c0392b;"><b>삭제:</b> <b>PC:</b> 우클릭 / <b>모바일:</b> 길게 누르기</li>
+        </ul>
+    </div>
+
+    <!-- 지도 라이브러리 (Leaflet JS) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 관리자용 삭제 비밀번호 설정
+        var ADMIN_PASSWORD = "1234";
+
+        // ==========================================
+        // 사용자님의 Firebase 설정
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
+            authDomain: "pine-map-4a6a3.firebaseapp.com",
+            databaseURL: "https://pine-map-4a6a3-default-rtdb.firebaseio.com",
+            projectId: "pine-map-4a6a3",
+            storageBucket: "pine-map-4a6a3.firebasestorage.app",
+            messagingSenderId: "304287623721",
+            appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
+        };
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var database = firebase.database();
+        } catch(e) {
+            console.error("Firebase 연결 실패: ", e);
+        }
+
+        // 지도 초기화
+        var map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
+        
+        L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', {
+            attribution: 'Map data &copy; Google',
+            maxNativeZoom: 21, maxZoom: 24
+        }).addTo(map);
+
+        var iconOptions = { iconSize: [20, 33], iconAnchor: [10, 33], popupAnchor: [1, -28], shadowSize: [33, 33] };
+        var icons = {
+            'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
+            'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
+            'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
+        };
+
+        var markersGroup = L.layerGroup().addTo(map); 
+        var markerLayers = {}; 
+
+        function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
+            if(markerLayers[dbKey]) return; 
+
+            var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: true });
+            
+            marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
+
+            var popupContent = document.createElement('div');
+            var textDiv = document.createElement('div');
+            textDiv.className = 'editable-popup';
+            textDiv.contentEditable = true;
+            textDiv.innerText = nameText;
+            
+            textDiv.addEventListener('input', function() {
+                marker.setTooltipContent(this.innerText);
+                if(database) database.ref('markers/' + dbKey).update({ text: this.innerText });
+            });
+            popupContent.appendChild(textDiv);
+            
+            var colorDiv = document.createElement('div');
+            colorDiv.style.marginTop = '10px'; colorDiv.style.textAlign = 'center';
+            var colors = ['blue', 'red', 'orange'];
+            var colorHex = {'blue':'#2196f3', 'red':'#e74c3c', 'orange':'#ff9800'};
+            
+            colors.forEach(function(c) {
+                var btn = document.createElement('button');
+                btn.style.backgroundColor = colorHex[c];
+                btn.style.border = '2px solid white'; btn.style.width = '20px'; btn.style.height = '20px';
+                btn.style.borderRadius = '50%'; btn.style.margin = '0 5px'; btn.style.cursor = 'pointer';
+                
+                btn.onclick = function() {
+                    marker.setIcon(icons[c]);
+                    if(database) database.ref('markers/' + dbKey).update({ color: c });
+                };
+                colorDiv.appendChild(btn);
+            });
+            popupContent.appendChild(colorDiv);
+            marker.bindPopup(popupContent);
+
+            marker.on('dragend', function(e) {
+                var pos = marker.getLatLng();
+                if(database) database.ref('markers/' + dbKey).update({ lat: pos.lat, lng: pos.lng });
+            });
+
+            marker.on('contextmenu', function(e) {
+                var inputPwd = prompt("마커를 삭제하려면 관리자 비밀번호를 입력하세요:");
+                if (inputPwd === ADMIN_PASSWORD) {
+                    if(database) database.ref('markers/' + dbKey).remove(); 
+                } else if (inputPwd !== null) { 
+                    alert("비밀번호가 일치하지 않습니다."); 
+                }
+            });
+
+            markersGroup.addLayer(marker);
+            markerLayers[dbKey] = marker;
+        }
+
+        if(database) {
+            database.ref('markers').on('value', function(snapshot) {
+                markersGroup.clearLayers(); 
+                markerLayers = {};
+                var data = snapshot.val();
+                if(data) {
+                    for (var key in data) { 
+                        createDraggableMarker(key, data[key].lat, data[key].lng, data[key].text, data[key].color);
+                    }
+                }
+            });
+        }
+
+        map.on('click', function(e) {
+            var newName = prompt("추가할 지점의 이름을 적어주세요.");
+            if (newName && newName.trim() !== "" && database) {
+                var newMarkerRef = database.ref('markers').push();
+                newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: 'blue' });
+            }
+        });
+    </script>
+</body>
+</html>
