@@ -3,13 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <title>양지파인리조트/CC 시설물 관리 종합 맵</title>
-    <!-- 모바일 및 태블릿 화면에 맞게 자동 조절 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 지도 라이브러리 (Leaflet CSS) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- 구글 파이어베이스(Firebase) 데이터베이스 라이브러리 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -17,22 +13,21 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
         #map { height: 100%; width: 100%; }
         
-        /* 우측 상단 사용 설명서 UI */
+        /* 설명창 UI - 전체적인 글씨 크기 확대 */
         .info-panel {
             position: absolute;
             top: 15px;
             right: 15px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
-            padding: 15px 12px 12px 12px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            max-width: 300px;
+            max-width: 320px;
             font-family: 'Malgun Gothic', sans-serif;
             border: 2px solid #2c3e50;
         }
         
-        /* 로고 스타일 */
         .brand-logo {
             text-align: center;
             margin-bottom: 10px;
@@ -40,72 +35,71 @@
             border-bottom: 1px solid #ddd;
         }
         .brand-logo img {
-            max-height: 35px; /* 로고가 너무 크지 않도록 최적화 */
+            max-height: 45px; /* 로고도 살짝 키움 */
             width: auto;
         }
 
-        /* 텍스트 라벨(홀 이름) 스타일 */
+        /* ★ 지도 위 라벨 글씨 크게 확대 (11px -> 14px) */
         .custom-tooltip {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #fff;
             color: white;
             font-weight: bold;
-            border-radius: 4px;
-            font-size: 11px; padding: 2px 5px; 
+            border-radius: 6px;
+            font-size: 14px; 
+            padding: 5px 8px; 
         }
         
-        /* 팝업 수정창 스타일 */
+        /* ★ 팝업 수정창 글씨 크게 확대 (13px -> 16px) */
         .editable-popup {
-            font-weight: bold; padding: 5px; border: 1px dashed #3498db; outline: none;
-            min-width: 120px; text-align: center; font-size: 13px; 
+            font-weight: bold; 
+            padding: 8px; 
+            border: 2px dashed #3498db; 
+            outline: none;
+            min-width: 140px; 
+            text-align: center; 
+            font-size: 16px; 
         }
         
-        /* 스마트폰(모바일) 화면일 때 설명창 자동 축소 */
+        /* 모바일 화면에서도 잘 보이도록 조절 */
         @media (max-width: 600px) {
             .info-panel {
                 top: auto; bottom: 20px; right: 10px; left: 10px; max-width: none;
-                padding: 10px; font-size: 11px;
+                padding: 12px; 
             }
-            .brand-logo img { max-height: 25px; } /* 모바일에서는 로고 크기 축소 */
-            .info-panel h3 { font-size: 14px; margin-bottom: 5px; }
-            .info-panel ul { padding-left: 15px; }
-            .info-panel .legend { display: none; } /* 모바일에서는 범례 숨김 */
+            .brand-logo img { max-height: 30px; } 
+            .info-panel h3 { font-size: 17px !important; margin-bottom: 5px; }
+            .info-panel ul { padding-left: 20px; font-size: 14px !important; }
+            .info-panel .legend { display: none; } 
         }
     </style>
 </head>
 <body>
     
-    <!-- 지도가 표시될 영역 -->
     <div id="map"></div>
 
-    <!-- 사용자 가이드 패널 -->
     <div class="info-panel">
-        <!-- ★ 브랜드 로고 삽입 구역 -->
         <div class="brand-logo">
             <img src="logo.png" alt="파인리조트 로고">
         </div>
         
-        <h3 style="margin-top:0; color:#2c3e50; font-size:15px; text-align:center;">시설물 종합 관리 맵</h3>
-        <div class="legend" style="background: #f8f9fa; padding: 6px; border-radius: 5px; margin-bottom: 8px; font-size: 12px;">
-            🔵 파란색(일반) 🔴 빨간색(위험) 🟠 주황색(보수)
+        <!-- 설명창 텍스트 크기 확대 -->
+        <h3 style="margin-top:0; color:#2c3e50; font-size:18px; text-align:center;">시설물 종합 관리 맵</h3>
+        <div class="legend" style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-size: 14px;">
+            🔵 일반(파란색) 🔴 위험(빨간색) 🟠 보수(주황색)
         </div>
-        <ul style="font-size: 12px; margin-bottom: 0;">
+        <ul style="font-size: 14px; margin-bottom: 0;">
             <li><b>이동:</b> 마커 <b>드래그</b></li>
             <li><b>추가:</b> 빈 곳 <b>터치/클릭</b></li>
-            <li><b>수정:</b> 마커 터치 후 말풍선 텍스트 조작</li>
-            <li style="color: #c0392b;"><b>삭제:</b> <b>PC:</b> 우클릭 / <b>모바일:</b> 길게 누르기</li>
+            <li><b>수정:</b> 마커 터치 후 텍스트 조작</li>
+            <li style="color: #c0392b;"><b>삭제:</b> PC 우클릭 / 모바일 길게 누르기</li>
         </ul>
     </div>
 
-    <!-- 지도 라이브러리 (Leaflet JS) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 관리자용 삭제 비밀번호 설정
         var ADMIN_PASSWORD = "1234";
 
-        // ==========================================
-        // 사용자님의 Firebase 설정
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
             authDomain: "pine-map-4a6a3.firebaseapp.com",
@@ -123,7 +117,6 @@
             console.error("Firebase 연결 실패: ", e);
         }
 
-        // 지도 초기화
         var map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
         
         L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', {
@@ -131,7 +124,8 @@
             maxNativeZoom: 21, maxZoom: 24
         }).addTo(map);
 
-        var iconOptions = { iconSize: [20, 33], iconAnchor: [10, 33], popupAnchor: [1, -28], shadowSize: [33, 33] };
+        // ★ 마커(핀) 크기도 모바일 터치를 위해 표준 크기로 원복 (25x41)
+        var iconOptions = { iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] };
         var icons = {
             'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
             'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
@@ -161,15 +155,15 @@
             popupContent.appendChild(textDiv);
             
             var colorDiv = document.createElement('div');
-            colorDiv.style.marginTop = '10px'; colorDiv.style.textAlign = 'center';
+            colorDiv.style.marginTop = '12px'; colorDiv.style.textAlign = 'center';
             var colors = ['blue', 'red', 'orange'];
             var colorHex = {'blue':'#2196f3', 'red':'#e74c3c', 'orange':'#ff9800'};
             
             colors.forEach(function(c) {
                 var btn = document.createElement('button');
                 btn.style.backgroundColor = colorHex[c];
-                btn.style.border = '2px solid white'; btn.style.width = '20px'; btn.style.height = '20px';
-                btn.style.borderRadius = '50%'; btn.style.margin = '0 5px'; btn.style.cursor = 'pointer';
+                btn.style.border = '2px solid white'; btn.style.width = '24px'; btn.style.height = '24px';
+                btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; btn.style.cursor = 'pointer';
                 
                 btn.onclick = function() {
                     marker.setIcon(icons[c]);
