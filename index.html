@@ -2,10 +2,15 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <title>양지파인리조트/CC 시설물 관리 종합 맵</title>
+    <title>양지파인리조트 관리맵</title>
     <!-- 스마트폰 화면 배율 고정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
+    <!-- ★ [신규] 스마트폰 바탕화면 바로가기 아이콘 설정 -->
+    <link rel="apple-touch-icon" href="logo_2.png">
+    <link rel="icon" href="logo_2.png">
+    <link rel="shortcut icon" href="logo_2.png">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -14,7 +19,6 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
         #map { height: 100%; width: 100%; }
         
-        /* [PC 기준] 설명창 UI */
         .info-panel {
             position: absolute;
             top: 15px;
@@ -40,7 +44,6 @@
             width: auto;
         }
 
-        /* [PC 기준] 지도 위 라벨 글씨 */
         .custom-tooltip {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #fff;
@@ -51,7 +54,6 @@
             padding: 5px 8px; 
         }
         
-        /* [PC 기준] 팝업 수정창 */
         .editable-popup {
             font-weight: bold; 
             padding: 8px; 
@@ -62,11 +64,7 @@
             font-size: 16px; 
         }
         
-        /* =======================================================
-           ★ [모바일 기준] 스마트폰 화면일 때 글씨 뻥튀기 (핵심 변경)
-           ======================================================= */
         @media (max-width: 600px) {
-            /* 1. 하단 설명창 글씨 확대 */
             .info-panel {
                 top: auto; bottom: 20px; right: 10px; left: 10px; max-width: none;
                 padding: 15px; 
@@ -76,15 +74,12 @@
             .info-panel ul { padding-left: 20px; font-size: 15px !important; line-height: 1.6; }
             .info-panel .legend { display: none; } 
             
-            /* 2. 지도 위 마커 이름(라벨) 글씨 확대 */
             .custom-tooltip {
-                font-size: 16px !important; /* 스마트폰 전용 크기 */
+                font-size: 16px !important; 
                 padding: 6px 10px !important;
             }
-
-            /* 3. 말풍선 텍스트 수정창 및 버튼 글씨 확대 */
             .editable-popup {
-                font-size: 18px !important; /* 스마트폰 전용 크기 */
+                font-size: 18px !important; 
                 padding: 10px !important;
                 min-width: 160px !important;
             }
@@ -97,6 +92,7 @@
 
     <div class="info-panel">
         <div class="brand-logo">
+            <!-- 내부 로고는 기존 logo.png 유지 (원하시면 logo_2.png로 바꾸셔도 됩니다) -->
             <img src="logo.png" alt="파인리조트 로고">
         </div>
         
@@ -114,7 +110,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 관리자용 공통 비밀번호 설정 (원하시는 비밀번호로 변경하세요)
         var ADMIN_PASSWORD = "1234";
 
         const firebaseConfig = {
@@ -197,7 +192,7 @@
             
             var moveBtn = document.createElement('button');
             moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
-            moveBtn.style.padding = "8px 10px"; /* 버튼 크기도 조금 키움 */
+            moveBtn.style.padding = "8px 10px";
             moveBtn.style.fontSize = "14px";
             moveBtn.style.backgroundColor = "#2c3e50";
             moveBtn.style.color = "white";
