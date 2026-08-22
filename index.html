@@ -5,7 +5,6 @@
     <title>양지파인리조트 관리맵</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- ★ 정사각형으로 만든 icon.png를 불러오도록 수정됨 -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
@@ -22,6 +21,7 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
+        /* ★ [수정됨] 패널에 애니메이션 및 닫기 버튼 추가 */
         .info-panel {
             position: absolute;
             top: 15px;
@@ -35,13 +35,51 @@
             border: 1px solid rgba(0,0,0,0.05);
             width: 320px;
             box-sizing: border-box;
+            transition: opacity 0.2s; /* 부드러운 숨김 애니메이션 */
         }
         
+        /* 닫기 ✖ 버튼 */
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            font-size: 18px;
+            color: #a0aec0;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #4a5568; }
+
+        /* 패널 숨김 시 나타날 미니 버튼 */
+        .info-toggle-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(8px);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.05);
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a202c;
+            cursor: pointer;
+            display: none; /* 기본적으로는 숨김 */
+            align-items: center;
+        }
+        .info-toggle-btn:hover { background: #f8fafc; }
+
         .brand-logo {
             text-align: center;
             margin-bottom: 12px;
             padding-bottom: 12px;
             border-bottom: 1px solid #f0f0f0;
+            margin-top: 5px; /* 닫기 버튼 공간 확보 */
         }
         .brand-logo img {
             max-height: 40px;
@@ -136,12 +174,20 @@
         }
         .editable-popup:focus { border-color: #3182ce; }
         
+        /* 모바일 최적화 (하단 버튼으로 변신) */
         @media (max-width: 600px) {
             .info-panel {
                 top: auto; bottom: 20px; right: 10px; left: 10px; 
                 width: auto; max-width: none;
                 padding: 16px; 
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            }
+            .info-toggle-btn {
+                top: auto; bottom: 20px; right: 10px;
+                padding: 12px 18px;
+                border-radius: 30px; /* 둥근 알약 모양 */
+                font-size: 15px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.25);
             }
             .brand-logo img { max-height: 32px; } 
             .panel-title { font-size: 18px; margin-bottom: 12px; }
@@ -156,9 +202,16 @@
     
     <div id="map"></div>
 
-    <div class="info-panel">
+    <!-- ★ 숨겨졌을 때 나타나는 둥근 플로팅 버튼 -->
+    <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">
+        🗺️ 메뉴 열기
+    </div>
+
+    <!-- 기존 설명창 패널 -->
+    <div id="info-panel" class="info-panel">
+        <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
+        
         <div class="brand-logo">
-            <!-- 맵 내부의 로고는 가로로 긴 기존 로고를 그대로 씁니다 -->
             <img src="logo.png" alt="파인리조트 로고">
         </div>
         
@@ -180,7 +233,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var ADMIN_PASSWORD = "8678";
+        var ADMIN_PASSWORD = "1234";
 
         const firebaseConfig = {
             apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
@@ -214,6 +267,20 @@
 
         var markersGroup = L.layerGroup().addTo(map); 
         var markerLayers = {}; 
+
+        // ★ 패널 열기/닫기 스크립트 기능 추가
+        function togglePanel() {
+            var panel = document.getElementById('info-panel');
+            var toggleBtn = document.getElementById('info-toggle');
+            
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';     // 패널 보이기
+                toggleBtn.style.display = 'none';  // 미니 버튼 숨기기
+            } else {
+                panel.style.display = 'none';      // 패널 숨기기
+                toggleBtn.style.display = 'flex';  // 미니 버튼 보이기
+            }
+        }
 
         function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
             if(markerLayers[dbKey]) return; 
