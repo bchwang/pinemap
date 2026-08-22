@@ -5,23 +5,23 @@
     <title>양지파인리조트 관리맵</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <link rel="icon" type="image/png" sizes="192x192" href="logo.png?v=6">
-    <link rel="icon" type="image/png" sizes="32x32" href="logo.png?v=6">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png?v=6">
-    <link rel="shortcut icon" href="logo.png?v=6" type="image/x-icon">
-    <link rel="apple-touch-icon" href="logo.png?v=6">
+    <!-- ★ 정사각형으로 만든 icon.png를 불러오도록 수정됨 -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon-precomposed" href="icon.png">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* 폰트 및 기본 설정 (최신 트렌드 폰트 우선 적용) */
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
-        /* ★ 고급스러운 대시보드 스타일의 정보 패널 */
         .info-panel {
             position: absolute;
             top: 15px;
@@ -57,7 +57,6 @@
             letter-spacing: -0.5px;
         }
 
-        /* ★ 가로 정렬을 완벽하게 맞춘 세련된 범례(Legend) UI */
         .legend-box {
             display: flex;
             justify-content: space-between;
@@ -74,7 +73,7 @@
             font-size: 13px;
             font-weight: 600;
             color: #4a5568;
-            white-space: nowrap; /* 글씨 줄바꿈 방지 */
+            white-space: nowrap; 
         }
         .color-dot {
             width: 10px;
@@ -87,7 +86,6 @@
         .dot-red { background-color: #ef4444; }
         .dot-orange { background-color: #f97316; }
 
-        /* 깔끔하게 정돈된 설명 리스트 */
         .guide-list {
             margin: 0;
             padding: 0;
@@ -112,7 +110,6 @@
         .guide-list .text-danger { color: #e53e3e; font-weight: 600; }
         .guide-list .text-danger::before { color: #e53e3e; }
 
-        /* 지도 위 라벨 글씨 */
         .custom-tooltip {
             background: rgba(26, 32, 44, 0.85);
             border: none;
@@ -125,7 +122,6 @@
             backdrop-filter: blur(4px);
         }
         
-        /* 팝업 수정창 (디자인 고급화) */
         .editable-popup {
             font-weight: 600; 
             padding: 8px; 
@@ -140,7 +136,6 @@
         }
         .editable-popup:focus { border-color: #3182ce; }
         
-        /* 모바일 최적화 반응형 레이아웃 */
         @media (max-width: 600px) {
             .info-panel {
                 top: auto; bottom: 20px; right: 10px; left: 10px; 
@@ -163,12 +158,12 @@
 
     <div class="info-panel">
         <div class="brand-logo">
+            <!-- 맵 내부의 로고는 가로로 긴 기존 로고를 그대로 씁니다 -->
             <img src="logo.png" alt="파인리조트 로고">
         </div>
         
         <h3 class="panel-title">시설물 종합 관리 맵</h3>
         
-        <!-- 세련된 색상 칩 범례 적용 (가로 정렬 보장) -->
         <div class="legend-box">
             <div class="legend-item"><span class="color-dot dot-blue"></span>일반 시설</div>
             <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
@@ -244,7 +239,7 @@
             colorDiv.style.marginTop = '12px'; 
             colorDiv.style.textAlign = 'center';
             var colors = ['blue', 'red', 'orange'];
-            var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316'}; /* 색상도 모던하게 톤 다운 */
+            var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316'}; 
             
             colors.forEach(function(c) {
                 var btn = document.createElement('button');
