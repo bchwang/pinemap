@@ -5,86 +5,155 @@
     <title>양지파인리조트 관리맵</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- ★ [PC 크롬 탭 및 스마트폰 홈화면 아이콘 완벽 지원 태그] -->
-    <link rel="icon" type="image/png" sizes="192x192" href="logo.png?v=5">
-    <link rel="icon" type="image/png" sizes="32x32" href="logo.png?v=5">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png?v=5">
-    <link rel="shortcut icon" href="logo.png?v=5" type="image/x-icon">
-    <link rel="apple-touch-icon" href="logo.png?v=5">
-    <link rel="apple-touch-icon-precomposed" href="logo.png?v=5">
-
+    <link rel="icon" type="image/png" sizes="192x192" href="logo.png?v=6">
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png?v=6">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png?v=6">
+    <link rel="shortcut icon" href="logo.png?v=6" type="image/x-icon">
+    <link rel="apple-touch-icon" href="logo.png?v=6">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        /* 폰트 및 기본 설정 (최신 트렌드 폰트 우선 적용) */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
+        /* ★ 고급스러운 대시보드 스타일의 정보 패널 */
         .info-panel {
             position: absolute;
             top: 15px;
             right: 15px;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            max-width: 320px;
-            font-family: 'Malgun Gothic', sans-serif;
-            border: 2px solid #2c3e50;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0,0,0,0.05);
+            width: 320px;
+            box-sizing: border-box;
         }
         
         .brand-logo {
             text-align: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
         }
         .brand-logo img {
-            max-height: 45px;
+            max-height: 40px;
             width: auto;
         }
 
-        .custom-tooltip {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #fff;
-            color: white;
+        .panel-title {
+            margin: 0 0 15px 0;
+            color: #1a202c;
+            font-size: 17px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        /* ★ 가로 정렬을 완벽하게 맞춘 세련된 범례(Legend) UI */
+        .legend-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #edf2f7;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            white-space: nowrap; /* 글씨 줄바꿈 방지 */
+        }
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dot-blue { background-color: #3b82f6; }
+        .dot-red { background-color: #ef4444; }
+        .dot-orange { background-color: #f97316; }
+
+        /* 깔끔하게 정돈된 설명 리스트 */
+        .guide-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.7;
+        }
+        .guide-list li {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 6px;
+        }
+        .guide-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #a0aec0;
             font-weight: bold;
+        }
+        .guide-list li b { color: #2d3748; }
+        .guide-list .text-danger { color: #e53e3e; font-weight: 600; }
+        .guide-list .text-danger::before { color: #e53e3e; }
+
+        /* 지도 위 라벨 글씨 */
+        .custom-tooltip {
+            background: rgba(26, 32, 44, 0.85);
+            border: none;
+            color: white;
+            font-weight: 600;
             border-radius: 6px;
             font-size: 14px; 
-            padding: 5px 8px; 
+            padding: 6px 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px);
         }
         
+        /* 팝업 수정창 (디자인 고급화) */
         .editable-popup {
-            font-weight: bold; 
+            font-weight: 600; 
             padding: 8px; 
-            border: 2px dashed #3498db; 
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
             outline: none;
-            min-width: 140px; 
+            min-width: 150px; 
             text-align: center; 
-            font-size: 16px; 
+            font-size: 15px; 
+            color: #2d3748;
+            transition: border-color 0.2s;
         }
+        .editable-popup:focus { border-color: #3182ce; }
         
+        /* 모바일 최적화 반응형 레이아웃 */
         @media (max-width: 600px) {
             .info-panel {
-                top: auto; bottom: 20px; right: 10px; left: 10px; max-width: none;
-                padding: 15px; 
+                top: auto; bottom: 20px; right: 10px; left: 10px; 
+                width: auto; max-width: none;
+                padding: 16px; 
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
             }
-            .brand-logo img { max-height: 35px; } 
-            .info-panel h3 { font-size: 19px !important; margin-bottom: 8px; }
-            .info-panel ul { padding-left: 20px; font-size: 15px !important; line-height: 1.6; }
-            .info-panel .legend { display: none; } 
-            
-            .custom-tooltip {
-                font-size: 16px !important; 
-                padding: 6px 10px !important;
-            }
-            .editable-popup {
-                font-size: 18px !important; 
-                padding: 10px !important;
-                min-width: 160px !important;
-            }
+            .brand-logo img { max-height: 32px; } 
+            .panel-title { font-size: 18px; margin-bottom: 12px; }
+            .legend-box { padding: 10px; }
+            .legend-item { font-size: 14px; }
+            .color-dot { width: 12px; height: 12px; }
+            .guide-list { font-size: 14px; }
         }
     </style>
 </head>
@@ -97,15 +166,20 @@
             <img src="logo.png" alt="파인리조트 로고">
         </div>
         
-        <h3 style="margin-top:0; color:#2c3e50; font-size:18px; text-align:center;">시설물 종합 관리 맵</h3>
-        <div class="legend" style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-size: 14px;">
-            🔵 일반(파란색) 🔴 위험(빨간색) 🟠 보수(주황색)
+        <h3 class="panel-title">시설물 종합 관리 맵</h3>
+        
+        <!-- 세련된 색상 칩 범례 적용 (가로 정렬 보장) -->
+        <div class="legend-box">
+            <div class="legend-item"><span class="color-dot dot-blue"></span>일반 시설</div>
+            <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
+            <div class="legend-item"><span class="color-dot dot-orange"></span>유지 보수</div>
         </div>
-        <ul style="font-size: 14px; margin-bottom: 0;">
-            <li><b>이동:</b> 마커 누르고 <b>잠금해제 버튼</b> 클릭</li>
-            <li><b>추가:</b> 빈 곳 <b>터치/클릭</b></li>
-            <li><b>수정:</b> 마커 터치 후 말풍선 텍스트 조작</li>
-            <li style="color: #c0392b;"><b>삭제:</b> 마커 길게 누르기 (또는 우클릭)</li>
+
+        <ul class="guide-list">
+            <li><b>위치 이동:</b> 마커 누르고 [잠금해제] 버튼 클릭</li>
+            <li><b>지점 추가:</b> 지도 빈 곳을 터치 (또는 클릭)</li>
+            <li><b>내용 수정:</b> 마커 터치 후 텍스트 바로 수정</li>
+            <li class="text-danger">마커 삭제: 마커를 길게 누르기 (우클릭)</li>
         </ul>
     </div>
 
@@ -133,7 +207,6 @@
         var map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
         
         L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', {
-            attribution: 'Map data &copy; Google',
             maxNativeZoom: 21, maxZoom: 24
         }).addTo(map);
 
@@ -171,13 +244,20 @@
             colorDiv.style.marginTop = '12px'; 
             colorDiv.style.textAlign = 'center';
             var colors = ['blue', 'red', 'orange'];
-            var colorHex = {'blue':'#2196f3', 'red':'#e74c3c', 'orange':'#ff9800'};
+            var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316'}; /* 색상도 모던하게 톤 다운 */
             
             colors.forEach(function(c) {
                 var btn = document.createElement('button');
                 btn.style.backgroundColor = colorHex[c];
-                btn.style.border = '2px solid white'; btn.style.width = '26px'; btn.style.height = '26px';
-                btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; btn.style.cursor = 'pointer';
+                btn.style.border = '2px solid transparent'; 
+                btn.style.width = '28px'; btn.style.height = '28px';
+                btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; 
+                btn.style.cursor = 'pointer';
+                btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.15)';
+                btn.style.transition = 'transform 0.1s';
+                
+                btn.onmousedown = function() { btn.style.transform = 'scale(0.9)'; }
+                btn.onmouseup = function() { btn.style.transform = 'scale(1)'; }
                 
                 btn.onclick = function() {
                     marker.setIcon(icons[c]);
@@ -193,14 +273,16 @@
             
             var moveBtn = document.createElement('button');
             moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
-            moveBtn.style.padding = "8px 10px";
+            moveBtn.style.padding = "10px";
             moveBtn.style.fontSize = "14px";
-            moveBtn.style.backgroundColor = "#2c3e50";
+            moveBtn.style.fontWeight = "600";
+            moveBtn.style.backgroundColor = "#1e293b";
             moveBtn.style.color = "white";
             moveBtn.style.border = "none";
-            moveBtn.style.borderRadius = "4px";
+            moveBtn.style.borderRadius = "6px";
             moveBtn.style.cursor = "pointer";
             moveBtn.style.width = "100%";
+            moveBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
             
             moveBtn.onclick = function() {
                 var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:");
