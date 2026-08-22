@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>양지파인리조트/CC 시설물 관리 종합 맵</title>
+    <!-- 스마트폰 화면 배율 고정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -13,7 +14,7 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
         #map { height: 100%; width: 100%; }
         
-        /* 설명창 UI */
+        /* [PC 기준] 설명창 UI */
         .info-panel {
             position: absolute;
             top: 15px;
@@ -39,7 +40,7 @@
             width: auto;
         }
 
-        /* 지도 위 라벨 글씨 */
+        /* [PC 기준] 지도 위 라벨 글씨 */
         .custom-tooltip {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #fff;
@@ -50,7 +51,7 @@
             padding: 5px 8px; 
         }
         
-        /* 팝업 수정창 */
+        /* [PC 기준] 팝업 수정창 */
         .editable-popup {
             font-weight: bold; 
             padding: 8px; 
@@ -61,15 +62,32 @@
             font-size: 16px; 
         }
         
+        /* =======================================================
+           ★ [모바일 기준] 스마트폰 화면일 때 글씨 뻥튀기 (핵심 변경)
+           ======================================================= */
         @media (max-width: 600px) {
+            /* 1. 하단 설명창 글씨 확대 */
             .info-panel {
                 top: auto; bottom: 20px; right: 10px; left: 10px; max-width: none;
-                padding: 12px; 
+                padding: 15px; 
             }
-            .brand-logo img { max-height: 30px; } 
-            .info-panel h3 { font-size: 17px !important; margin-bottom: 5px; }
-            .info-panel ul { padding-left: 20px; font-size: 14px !important; }
+            .brand-logo img { max-height: 35px; } 
+            .info-panel h3 { font-size: 19px !important; margin-bottom: 8px; }
+            .info-panel ul { padding-left: 20px; font-size: 15px !important; line-height: 1.6; }
             .info-panel .legend { display: none; } 
+            
+            /* 2. 지도 위 마커 이름(라벨) 글씨 확대 */
+            .custom-tooltip {
+                font-size: 16px !important; /* 스마트폰 전용 크기 */
+                padding: 6px 10px !important;
+            }
+
+            /* 3. 말풍선 텍스트 수정창 및 버튼 글씨 확대 */
+            .editable-popup {
+                font-size: 18px !important; /* 스마트폰 전용 크기 */
+                padding: 10px !important;
+                min-width: 160px !important;
+            }
         }
     </style>
 </head>
@@ -96,8 +114,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 관리자용 공통 비밀번호 설정 (이동 및 삭제 시 사용)
-        var ADMIN_PASSWORD = "8678";
+        // 관리자용 공통 비밀번호 설정 (원하시는 비밀번호로 변경하세요)
+        var ADMIN_PASSWORD = "1234";
 
         const firebaseConfig = {
             apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
@@ -136,14 +154,12 @@
         function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
             if(markerLayers[dbKey]) return; 
 
-            // ★ 중요: draggable을 false로 설정하여 기본적으로 절대 안 움직이게 고정!
             var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
             
             marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
 
             var popupContent = document.createElement('div');
             
-            // 1. 텍스트 수정 영역
             var textDiv = document.createElement('div');
             textDiv.className = 'editable-popup';
             textDiv.contentEditable = true;
@@ -155,7 +171,6 @@
             });
             popupContent.appendChild(textDiv);
             
-            // 2. 색상 변경 버튼 영역
             var colorDiv = document.createElement('div');
             colorDiv.style.marginTop = '12px'; 
             colorDiv.style.textAlign = 'center';
@@ -165,7 +180,7 @@
             colors.forEach(function(c) {
                 var btn = document.createElement('button');
                 btn.style.backgroundColor = colorHex[c];
-                btn.style.border = '2px solid white'; btn.style.width = '24px'; btn.style.height = '24px';
+                btn.style.border = '2px solid white'; btn.style.width = '26px'; btn.style.height = '26px';
                 btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; btn.style.cursor = 'pointer';
                 
                 btn.onclick = function() {
@@ -176,15 +191,14 @@
             });
             popupContent.appendChild(colorDiv);
 
-            // 3. ★ [신규] 위치 이동 잠금해제 버튼 영역
             var actionDiv = document.createElement('div');
-            actionDiv.style.marginTop = '12px';
+            actionDiv.style.marginTop = '15px';
             actionDiv.style.textAlign = 'center';
             
             var moveBtn = document.createElement('button');
             moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
-            moveBtn.style.padding = "6px 10px";
-            moveBtn.style.fontSize = "13px";
+            moveBtn.style.padding = "8px 10px"; /* 버튼 크기도 조금 키움 */
+            moveBtn.style.fontSize = "14px";
             moveBtn.style.backgroundColor = "#2c3e50";
             moveBtn.style.color = "white";
             moveBtn.style.border = "none";
@@ -192,12 +206,11 @@
             moveBtn.style.cursor = "pointer";
             moveBtn.style.width = "100%";
             
-            // 잠금해제 버튼 클릭 이벤트
             moveBtn.onclick = function() {
                 var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:");
                 if (inputPwd === ADMIN_PASSWORD) {
-                    marker.dragging.enable(); // 마커 이동 허용
-                    marker.closePopup();      // 말풍선 닫기 (시야 확보)
+                    marker.dragging.enable(); 
+                    marker.closePopup();      
                     alert("✅ 잠금이 해제되었습니다.\n원하는 위치로 마커를 드래그 하세요.\n(이동을 마치면 자동으로 다시 잠깁니다.)");
                 } else if (inputPwd !== null) {
                     alert("비밀번호가 일치하지 않습니다.");
@@ -208,16 +221,14 @@
             
             marker.bindPopup(popupContent);
 
-            // ★ 드래그(이동)가 끝나면 위치를 저장하고 다시 '잠금' 상태로 되돌림!
             marker.on('dragend', function(e) {
                 var pos = marker.getLatLng();
                 if(database) database.ref('markers/' + dbKey).update({ lat: pos.lat, lng: pos.lng });
                 
-                marker.dragging.disable(); // 다시 이동 불가 상태로 잠금
+                marker.dragging.disable(); 
                 alert("위치가 성공적으로 변경되어 다시 잠금 처리되었습니다.");
             });
 
-            // 삭제 기능 (우클릭 / 길게 누르기)
             marker.on('contextmenu', function(e) {
                 var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
                 if (inputPwd === ADMIN_PASSWORD) {
