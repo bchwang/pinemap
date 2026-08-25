@@ -32,55 +32,28 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             border: 1px solid rgba(0,0,0,0.05);
-            width: 320px;
+            width: 330px; /* 검색창을 위해 너비 살짝 확보 */
             box-sizing: border-box;
             transition: opacity 0.2s; 
         }
         
-        .close-btn {
-            position: absolute;
-            top: 12px;
-            right: 15px;
-            font-size: 18px;
-            color: #a0aec0;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 5px;
-            transition: color 0.2s;
-        }
+        .close-btn { position: absolute; top: 12px; right: 15px; font-size: 18px; color: #a0aec0; cursor: pointer; background: none; border: none; padding: 5px; transition: color 0.2s; }
         .close-btn:hover { color: #4a5568; }
 
-        .info-toggle-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(8px);
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border: 1px solid rgba(0,0,0,0.05);
-            font-weight: 700;
-            font-size: 14px;
-            color: #1a202c;
-            cursor: pointer;
-            display: none; 
-            align-items: center;
-        }
+        .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
         .info-toggle-btn:hover { background: #f8fafc; }
 
-        .brand-logo {
-            text-align: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            margin-top: 5px; 
-        }
+        .brand-logo { text-align: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; margin-top: 5px; }
         .brand-logo img { max-height: 40px; width: auto; }
 
         .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 700; text-align: center; letter-spacing: -0.5px; }
+
+        /* ★ 검색창 UI 스타일 */
+        .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
+        .search-box input { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
+        .search-box input:focus { border-color: #3b82f6; }
+        .search-box button { padding: 0 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
+        .search-box button:hover { background: #2563eb; }
 
         .legend-box { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; white-space: nowrap; }
@@ -105,6 +78,7 @@
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .brand-logo img { max-height: 32px; } 
             .panel-title { font-size: 18px; margin-bottom: 12px; }
+            .search-box input, .search-box button { font-size: 15px; padding: 12px; }
             .legend-box { padding: 10px; }
             .legend-item { font-size: 14px; }
             .color-dot { width: 12px; height: 12px; }
@@ -121,6 +95,13 @@
         <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
         <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
         <h3 class="panel-title">시설물 종합 관리 맵</h3>
+        
+        <!-- ★ 검색창 UI 추가 -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
+            <button onclick="searchMarker()">찾기</button>
+        </div>
+
         <div class="legend-box">
             <div class="legend-item"><span class="color-dot dot-blue"></span>일반 시설</div>
             <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
@@ -139,13 +120,11 @@
         // ==========================================
         // ★ 보안 설정 구역 
         // ==========================================
-        var ACCESS_PASSWORD = "8899"; // 사이트 최초 접속용 비밀번호 (원하시는 숫자로 변경하세요!)
-        var ADMIN_PASSWORD = "1234";  // 마커 위치 이동 및 삭제 관리자용 비밀번호
+        var ACCESS_PASSWORD = "pine@2026!"; // 사이트 최초 접속용 비밀번호 
+        var ADMIN_PASSWORD = "1122";  // 마커 위치 이동 및 삭제 관리자용 비밀번호
 
-        // 사이트 접속 시 비밀번호 확인 팝업
         var userInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
 
-        // 비밀번호가 틀렸을 경우 실행되는 코드 (화면 차단)
         if (userInput !== ACCESS_PASSWORD) {
             document.body.innerHTML = `
                 <div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'>
@@ -153,7 +132,6 @@
                     <p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p>
                 </div>`;
         } 
-        // 비밀번호가 맞았을 경우에만 아래 지도 시스템 정상 실행
         else {
             const firebaseConfig = {
                 apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
@@ -188,7 +166,8 @@
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
-            function togglePanel() {
+            // 패널 숨김/표시 기능
+            window.togglePanel = function() {
                 var panel = document.getElementById('info-panel');
                 var toggleBtn = document.getElementById('info-toggle');
                 
@@ -199,9 +178,42 @@
                     panel.style.display = 'none';      
                     toggleBtn.style.display = 'flex';  
                 }
-            }
-            // 전역 스코프에서 접근할 수 있도록 윈도우 객체에 등록
-            window.togglePanel = togglePanel;
+            };
+
+            // ★ 마커 검색 기능 로직
+            window.searchMarker = function() {
+                var keyword = document.getElementById('searchInput').value.trim();
+                if (!keyword) {
+                    alert("검색할 시설물이나 지점의 이름을 입력해주세요.");
+                    return;
+                }
+
+                var found = false;
+                for (var key in markerLayers) {
+                    var marker = markerLayers[key];
+                    // 툴팁(이름표)에 적힌 글씨 가져오기
+                    var markerText = marker.getTooltip().getContent() || "";
+                    
+                    // 입력한 키워드가 이름에 포함되어 있는지 확인
+                    if (markerText.includes(keyword)) {
+                        // 찾으면 해당 위치로 지도를 이동하고 엄청나게 확대(줌인)
+                        map.setView(marker.getLatLng(), 20); 
+                        // 마커의 수정 팝업창을 자동으로 열어서 강조 표시
+                        marker.openPopup();
+                        found = true;
+                        
+                        // 모바일 화면에서는 검색 성공 시 시야 확보를 위해 설명창을 자동으로 닫음
+                        if(window.innerWidth <= 600) {
+                            togglePanel();
+                        }
+                        break; // 첫 번째 찾은 곳에서 정지
+                    }
+                }
+
+                if (!found) {
+                    alert("'" + keyword + "' (이)라는 이름이 포함된 지점을 찾을 수 없습니다.");
+                }
+            };
 
             function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
                 if(markerLayers[dbKey]) return; 
@@ -323,7 +335,7 @@
                     newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: 'blue' });
                 }
             });
-        } // else(비밀번호 일치 시) 블록 끝
+        } 
     </script>
 </body>
 </html>
