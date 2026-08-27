@@ -32,7 +32,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             border: 1px solid rgba(0,0,0,0.05);
-            width: 330px; /* 검색창을 위해 너비 살짝 확보 */
+            width: 330px; 
             box-sizing: border-box;
             transition: opacity 0.2s; 
         }
@@ -48,7 +48,6 @@
 
         .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 700; text-align: center; letter-spacing: -0.5px; }
 
-        /* ★ 검색창 UI 스타일 */
         .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
         .search-box input { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
         .search-box input:focus { border-color: #3b82f6; }
@@ -96,7 +95,6 @@
         <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
         <h3 class="panel-title">시설물 종합 관리 맵</h3>
         
-        <!-- ★ 검색창 UI 추가 -->
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
             <button onclick="searchMarker()">찾기</button>
@@ -117,11 +115,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ==========================================
-        // ★ 보안 설정 구역 
-        // ==========================================
-        var ACCESS_PASSWORD = "pine@2026!"; // 사이트 최초 접속용 비밀번호 
-        var ADMIN_PASSWORD = "1122";  // 마커 위치 이동 및 삭제 관리자용 비밀번호
+        var ACCESS_PASSWORD = "8899"; 
+        var ADMIN_PASSWORD = "1234";  
 
         var userInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
 
@@ -166,7 +161,6 @@
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
-            // 패널 숨김/표시 기능
             window.togglePanel = function() {
                 var panel = document.getElementById('info-panel');
                 var toggleBtn = document.getElementById('info-toggle');
@@ -180,7 +174,6 @@
                 }
             };
 
-            // ★ 마커 검색 기능 로직
             window.searchMarker = function() {
                 var keyword = document.getElementById('searchInput').value.trim();
                 if (!keyword) {
@@ -191,22 +184,17 @@
                 var found = false;
                 for (var key in markerLayers) {
                     var marker = markerLayers[key];
-                    // 툴팁(이름표)에 적힌 글씨 가져오기
                     var markerText = marker.getTooltip().getContent() || "";
                     
-                    // 입력한 키워드가 이름에 포함되어 있는지 확인
                     if (markerText.includes(keyword)) {
-                        // 찾으면 해당 위치로 지도를 이동하고 엄청나게 확대(줌인)
                         map.setView(marker.getLatLng(), 20); 
-                        // 마커의 수정 팝업창을 자동으로 열어서 강조 표시
                         marker.openPopup();
                         found = true;
                         
-                        // 모바일 화면에서는 검색 성공 시 시야 확보를 위해 설명창을 자동으로 닫음
                         if(window.innerWidth <= 600) {
                             togglePanel();
                         }
-                        break; // 첫 번째 찾은 곳에서 정지
+                        break; 
                     }
                 }
 
@@ -225,6 +213,7 @@
                 var popupContent = document.createElement('div');
                 
                 var textDiv = document.createElement('div');
+                textDiv.id = 'popup-text-' + dbKey; // ★ 입력 끊김 해결을 위한 ID 부여
                 textDiv.className = 'editable-popup';
                 textDiv.contentEditable = true;
                 textDiv.innerText = nameText;
@@ -315,15 +304,44 @@
                 markerLayers[dbKey] = marker;
             }
 
+            // =======================================================
+            // ★ [핵심 변경] 전체 새로고침 방식 -> '개별 업데이트' 방식으로 변경
+            // =======================================================
             if(database) {
-                database.ref('markers').on('value', function(snapshot) {
-                    markersGroup.clearLayers(); 
-                    markerLayers = {};
+                var markersRef = database.ref('markers');
+
+                // 1. 처음 접속하거나 새 마커가 찍혔을 때만 하나씩 그리기
+                markersRef.on('child_added', function(snapshot) {
                     var data = snapshot.val();
-                    if(data) {
-                        for (var key in data) { 
-                            createDraggableMarker(key, data[key].lat, data[key].lng, data[key].text, data[key].color);
+                    createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
+                });
+
+                // 2. 누군가 글자나 위치를 바꿨을 때 '그 마커만' 조용히 변경하기
+                markersRef.on('child_changed', function(snapshot) {
+                    var data = snapshot.val();
+                    var marker = markerLayers[snapshot.key];
+                    if (marker) {
+                        marker.setLatLng([data.lat, data.lng]); // 위치 변경 반영
+                        
+                        if (marker.getTooltip().getContent() !== data.text) {
+                            marker.setTooltipContent(data.text); // 이름표 글씨 반영
                         }
+                        marker.setIcon(icons[data.color]); // 색상 반영
+                        
+                        // ★ 현재 내가 타이핑 중이 아닐 때만 팝업창 글씨 업데이트 (입력 끊김 방지)
+                        var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
+                        if (activeTextDiv && document.activeElement !== activeTextDiv) {
+                            activeTextDiv.innerText = data.text;
+                        }
+                    }
+                });
+
+                // 3. 누군가 삭제했을 때 '그 마커만' 지도에서 지우기
+                markersRef.on('child_removed', function(snapshot) {
+                    var marker = markerLayers[snapshot.key];
+                    if (marker) {
+                        markersGroup.removeLayer(marker);
+                        delete markerLayers[snapshot.key];
                     }
                 });
             }
