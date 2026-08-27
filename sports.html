@@ -19,7 +19,7 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
-        #map { height: 100%; width: 100%; }
+        #map { height: 100%; width: 100%; background-color: #f4f4f4; }
         
         .info-panel {
             position: absolute; top: 15px; right: 15px; z-index: 1000;
@@ -38,7 +38,7 @@
         .brand-logo img { max-height: 40px; width: auto; }
 
         .panel-title { margin: 0 0 5px 0; color: #1a202c; font-size: 17px; font-weight: 700; text-align: center; letter-spacing: -0.5px; }
-        .panel-subtitle { text-align: center; color: #718096; font-size: 13px; margin-bottom: 15px; font-weight: 500; }
+        .panel-subtitle { text-align: center; color: #718096; font-size: 12px; margin-bottom: 15px; font-weight: 600; font-family: 'Arial', sans-serif; letter-spacing: 0.5px; }
 
         .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
         .search-box input { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
@@ -53,7 +53,7 @@
         .dot-red { background-color: #ef4444; }
         .dot-orange { background-color: #f97316; }
 
-        .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4a5568; line-height: 1.7; }
+        .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4a5568; line-height: 1.7; margin-bottom: 15px;}
         .guide-list li { position: relative; padding-left: 12px; margin-bottom: 6px; }
         .guide-list li::before { content: "•"; position: absolute; left: 0; color: #a0aec0; font-weight: bold; }
         .guide-list li b { color: #2d3748; }
@@ -64,6 +64,9 @@
         .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
         .editable-popup:focus { border-color: #3182ce; }
         
+        .settings-btn { background: #4a5568; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .settings-btn:hover { background: #2d3748; }
+
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 20px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
@@ -78,17 +81,20 @@
     </style>
 </head>
 <body>
+    <!-- 로딩 화면 (비밀번호 확인 전까지 지도를 가려줌) -->
+    <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+        <h2 style="color:#2d3748; font-family:sans-serif;">보안 시스템 연결 중...</h2>
+    </div>
     
     <div id="map"></div>
     <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️ 메뉴 열기</div>
 
-    <div id="info-panel" class="info-panel">
+    <div id="info-panel" class="info-panel" style="display:none;"> <!-- 초기엔 숨김 -->
         <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
         <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
         
-        <!-- ★ 제목 및 담당자 부제목 추가 -->
         <h3 class="panel-title">미래개발 체육시설 관리맵</h3>
-        <div class="panel-subtitle" style="font-family: Arial, sans-serif;">Supervised by Manager Chi-hyo Bae</div>
+        <div class="panel-subtitle">Supervised by Manager Chi-hyo Bae</div>
         
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
@@ -106,40 +112,99 @@
             <li><b>내용 수정:</b> 마커 터치 후 텍스트 바로 수정</li>
             <li class="text-danger">마커 삭제: 마커를 길게 누르기 (우클릭)</li>
         </ul>
+        
+        <!-- ★ 설정 변경 버튼 (비밀번호 변경 등) -->
+        <div style="border-top: 1px solid #edf2f7; padding-top: 15px;">
+            <button class="settings-btn" onclick="changePasswords()">⚙️ 맵 비밀번호 변경 설정</button>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var ACCESS_PASSWORD = "7788"; // 체육/조명 맵 접속 비밀번호
-        var ADMIN_PASSWORD = "1234";  // 마커 위치 이동 및 삭제 관리자용 비밀번호
+        const firebaseConfig = {
+            apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
+            authDomain: "pine-map-4a6a3.firebaseapp.com",
+            databaseURL: "https://pine-map-4a6a3-default-rtdb.firebaseio.com",
+            projectId: "pine-map-4a6a3",
+            storageBucket: "pine-map-4a6a3.firebasestorage.app",
+            messagingSenderId: "304287623721",
+            appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
+        };
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var database = firebase.database();
+        } catch(e) {
+            console.error("Firebase 연결 실패: ", e);
+        }
 
-        var userInput = prompt("미래개발 체육시설 관리맵입니다.\n접속 비밀번호를 입력하세요:");
+        // 글로벌 변수로 관리자 비밀번호 임시 보관
+        window.CURRENT_ADMIN_PWD = "";
 
-        if (userInput !== ACCESS_PASSWORD) {
-            document.body.innerHTML = `
-                <div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'>
-                    <h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2>
-                    <p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p>
-                </div>`;
-        } 
-        else {
-            const firebaseConfig = {
-                apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
-                authDomain: "pine-map-4a6a3.firebaseapp.com",
-                databaseURL: "https://pine-map-4a6a3-default-rtdb.firebaseio.com",
-                projectId: "pine-map-4a6a3",
-                storageBucket: "pine-map-4a6a3.firebasestorage.app",
-                messagingSenderId: "304287623721",
-                appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
-            };
+        // ★ 1단계: 파이어베이스에서 최신 비밀번호 설정 불러오기
+        var settingsRef = database.ref('settings_sports');
+        settingsRef.once('value').then(function(snapshot) {
+            var settings = snapshot.val();
             
-            try {
-                firebase.initializeApp(firebaseConfig);
-                var database = firebase.database();
-            } catch(e) {
-                console.error("Firebase 연결 실패: ", e);
+            // 데이터베이스에 설정이 없으면 최초 기본값 부여
+            var currentAccessPwd = settings && settings.access_pwd ? settings.access_pwd : "7788";
+            window.CURRENT_ADMIN_PWD = settings && settings.admin_pwd ? settings.admin_pwd : "1234";
+
+            // 최초 실행 시 서버에 기본값 저장해두기
+            if (!settings) {
+                settingsRef.set({ access_pwd: currentAccessPwd, admin_pwd: window.CURRENT_ADMIN_PWD });
             }
 
+            document.getElementById('loading-screen').style.display = 'none';
+
+            // ★ 2단계: 최신 비밀번호로 접속 인증
+            var userInput = prompt("미래개발 체육시설 관리맵입니다.\n접속 비밀번호를 입력하세요:");
+            
+            if (userInput !== currentAccessPwd) {
+                document.body.innerHTML = `
+                    <div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'>
+                        <h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2>
+                        <p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p>
+                    </div>`;
+            } else {
+                // 인증 성공! 지도 실행
+                document.getElementById('info-panel').style.display = 'block';
+                initMapApp();
+            }
+        });
+
+        // ===============================================
+        // ★ 화면 내 비밀번호 변경 기능 로직
+        // ===============================================
+        window.changePasswords = function() {
+            var pwdCheck = prompt("보안 확인\n설정을 변경하려면 현재 '관리자 비밀번호'를 입력하세요:");
+            if (pwdCheck !== window.CURRENT_ADMIN_PWD) {
+                alert("관리자 비밀번호가 일치하지 않아 설정을 변경할 수 없습니다.");
+                return;
+            }
+
+            var type = prompt("변경할 항목을 숫자로 입력하세요.\n\n[1] 사이트 접속 비밀번호 변경\n[2] 마커 관리자(수정/이동/삭제) 비밀번호 변경");
+
+            if (type === "1") {
+                var newAccess = prompt("새로운 '사이트 접속 비밀번호'를 입력하세요:");
+                if(newAccess && newAccess.trim() !== "") {
+                    database.ref('settings_sports').update({ access_pwd: newAccess.trim() });
+                    alert("✅ 접속 비밀번호가 [" + newAccess + "]로 변경되었습니다.\n다음 접속 시부터 적용됩니다.");
+                }
+            } else if (type === "2") {
+                var newAdmin = prompt("새로운 '마커 관리자 비밀번호'를 입력하세요:");
+                if(newAdmin && newAdmin.trim() !== "") {
+                    database.ref('settings_sports').update({ admin_pwd: newAdmin.trim() });
+                    window.CURRENT_ADMIN_PWD = newAdmin.trim();
+                    alert("✅ 관리자 비밀번호가 [" + newAdmin + "]로 즉시 변경되었습니다.");
+                }
+            } else if (type !== null) {
+                alert("잘못된 입력입니다. 1 또는 2를 입력해주세요.");
+            }
+        };
+
+        // 지도 실행 메인 함수 (인증 성공 후 실행됨)
+        function initMapApp() {
             var map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
             
             L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', {
@@ -234,8 +299,9 @@
                 moveBtn.style.padding = "10px"; moveBtn.style.fontSize = "14px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%"; moveBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
                 
                 moveBtn.onclick = function() {
+                    // ★ 고정된 글자 대신 파이어베이스에서 받은 최신 관리자 비밀번호를 사용
                     var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:");
-                    if (inputPwd === ADMIN_PASSWORD) {
+                    if (inputPwd === window.CURRENT_ADMIN_PWD) {
                         marker.dragging.enable(); marker.closePopup();      
                         alert("✅ 잠금이 해제되었습니다.\n원하는 위치로 마커를 드래그 하세요.\n(이동을 마치면 자동으로 다시 잠깁니다.)");
                     } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
@@ -253,8 +319,9 @@
                 });
 
                 marker.on('contextmenu', function(e) {
+                    // ★ 삭제 시에도 최신 관리자 비밀번호 확인
                     var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                    if (inputPwd === ADMIN_PASSWORD) {
+                    if (inputPwd === window.CURRENT_ADMIN_PWD) {
                         if(database) database.ref('markers_sports/' + dbKey).remove(); 
                     } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
                 });
@@ -263,37 +330,35 @@
                 markerLayers[dbKey] = marker;
             }
 
-            if(database) {
-                var markersRef = database.ref('markers_sports');
+            var markersRef = database.ref('markers_sports');
 
-                markersRef.on('child_added', function(snapshot) {
-                    var data = snapshot.val();
-                    createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
-                });
+            markersRef.on('child_added', function(snapshot) {
+                var data = snapshot.val();
+                createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
+            });
 
-                markersRef.on('child_changed', function(snapshot) {
-                    var data = snapshot.val();
-                    var marker = markerLayers[snapshot.key];
-                    if (marker) {
-                        marker.setLatLng([data.lat, data.lng]); 
-                        if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
-                        marker.setIcon(icons[data.color]); 
-                        
-                        var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
-                        if (activeTextDiv && document.activeElement !== activeTextDiv) {
-                            activeTextDiv.innerText = data.text;
-                        }
+            markersRef.on('child_changed', function(snapshot) {
+                var data = snapshot.val();
+                var marker = markerLayers[snapshot.key];
+                if (marker) {
+                    marker.setLatLng([data.lat, data.lng]); 
+                    if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
+                    marker.setIcon(icons[data.color]); 
+                    
+                    var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
+                    if (activeTextDiv && document.activeElement !== activeTextDiv) {
+                        activeTextDiv.innerText = data.text;
                     }
-                });
+                }
+            });
 
-                markersRef.on('child_removed', function(snapshot) {
-                    var marker = markerLayers[snapshot.key];
-                    if (marker) {
-                        markersGroup.removeLayer(marker);
-                        delete markerLayers[snapshot.key];
-                    }
-                });
-            }
+            markersRef.on('child_removed', function(snapshot) {
+                var marker = markerLayers[snapshot.key];
+                if (marker) {
+                    markersGroup.removeLayer(marker);
+                    delete markerLayers[snapshot.key];
+                }
+            });
 
             map.on('click', function(e) {
                 var newName = prompt("추가할 지점의 이름을 적어주세요.");
@@ -302,7 +367,7 @@
                     newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: 'blue' });
                 }
             });
-        } 
+        }
     </script>
 </body>
 </html>
