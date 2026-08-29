@@ -54,7 +54,7 @@
         .search-box button { padding: 0 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
         .search-box button:hover { background: #2563eb; }
 
-        /* ★ 4가지 색상으로 범례 레이아웃 변경 */
+        /* ★ 4가지 색상을 위해 2줄(그리드)로 정렬 */
         .legend-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; white-space: nowrap; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -119,7 +119,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ★ 박사님이 설정하신 기존 비밀번호 그대로 유지
         var ACCESS_PASSWORD = "pine@2026!"; 
         var ADMIN_PASSWORD = "1122";  
 
@@ -161,7 +160,7 @@
                 'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                // ★ 초록색 아이콘 이미지 추가
+                // ★ 초록색 마커 이미지
                 'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
             };
 
@@ -235,7 +234,7 @@
                 colorDiv.style.marginTop = '12px'; 
                 colorDiv.style.textAlign = 'center';
                 
-                // ★ 4가지 색상으로 버튼 추가
+                // ★ 4가지 색상으로 버튼 배열
                 var colors = ['blue', 'red', 'orange', 'green'];
                 var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
                 
