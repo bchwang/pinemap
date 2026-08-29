@@ -54,12 +54,14 @@
         .search-box button { padding: 0 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
         .search-box button:hover { background: #2563eb; }
 
-        .legend-box { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
+        /* ★ 4가지 색상으로 범례 레이아웃 변경 */
+        .legend-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; white-space: nowrap; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .dot-blue { background-color: #3b82f6; }
         .dot-red { background-color: #ef4444; }
         .dot-orange { background-color: #f97316; }
+        .dot-green { background-color: #22c55e; }
 
         .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4a5568; line-height: 1.7; }
         .guide-list li { position: relative; padding-left: 12px; margin-bottom: 6px; }
@@ -78,8 +80,8 @@
             .brand-logo img { max-height: 32px; } 
             .panel-title { font-size: 18px; margin-bottom: 12px; }
             .search-box input, .search-box button { font-size: 15px; padding: 12px; }
-            .legend-box { padding: 10px; }
-            .legend-item { font-size: 14px; }
+            .legend-box { padding: 10px; gap: 6px; }
+            .legend-item { font-size: 13px; }
             .color-dot { width: 12px; height: 12px; }
             .guide-list { font-size: 14px; }
         }
@@ -104,6 +106,8 @@
             <div class="legend-item"><span class="color-dot dot-blue"></span>일반 시설</div>
             <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
             <div class="legend-item"><span class="color-dot dot-orange"></span>유지 보수</div>
+            <!-- ★ 범례에 조치 완료 추가 -->
+            <div class="legend-item"><span class="color-dot dot-green"></span>조치 완료</div>
         </div>
         <ul class="guide-list">
             <li><b>위치 이동:</b> 마커 누르고 [잠금해제] 버튼 클릭</li>
@@ -115,6 +119,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ★ 박사님이 설정하신 기존 비밀번호 그대로 유지
         var ACCESS_PASSWORD = "pine@2026!"; 
         var ADMIN_PASSWORD = "1122";  
 
@@ -155,7 +160,9 @@
             var icons = {
                 'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
+                'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
+                // ★ 초록색 아이콘 이미지 추가
+                'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
             };
 
             var markersGroup = L.layerGroup().addTo(map); 
@@ -213,7 +220,7 @@
                 var popupContent = document.createElement('div');
                 
                 var textDiv = document.createElement('div');
-                textDiv.id = 'popup-text-' + dbKey; // ★ 입력 끊김 해결을 위한 ID 부여
+                textDiv.id = 'popup-text-' + dbKey; 
                 textDiv.className = 'editable-popup';
                 textDiv.contentEditable = true;
                 textDiv.innerText = nameText;
@@ -227,8 +234,10 @@
                 var colorDiv = document.createElement('div');
                 colorDiv.style.marginTop = '12px'; 
                 colorDiv.style.textAlign = 'center';
-                var colors = ['blue', 'red', 'orange'];
-                var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316'}; 
+                
+                // ★ 4가지 색상으로 버튼 추가
+                var colors = ['blue', 'red', 'orange', 'green'];
+                var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
                 
                 colors.forEach(function(c) {
                     var btn = document.createElement('button');
@@ -304,31 +313,25 @@
                 markerLayers[dbKey] = marker;
             }
 
-            // =======================================================
-            // ★ [핵심 변경] 전체 새로고침 방식 -> '개별 업데이트' 방식으로 변경
-            // =======================================================
             if(database) {
                 var markersRef = database.ref('markers');
 
-                // 1. 처음 접속하거나 새 마커가 찍혔을 때만 하나씩 그리기
                 markersRef.on('child_added', function(snapshot) {
                     var data = snapshot.val();
                     createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
                 });
 
-                // 2. 누군가 글자나 위치를 바꿨을 때 '그 마커만' 조용히 변경하기
                 markersRef.on('child_changed', function(snapshot) {
                     var data = snapshot.val();
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
-                        marker.setLatLng([data.lat, data.lng]); // 위치 변경 반영
+                        marker.setLatLng([data.lat, data.lng]); 
                         
                         if (marker.getTooltip().getContent() !== data.text) {
-                            marker.setTooltipContent(data.text); // 이름표 글씨 반영
+                            marker.setTooltipContent(data.text); 
                         }
-                        marker.setIcon(icons[data.color]); // 색상 반영
+                        marker.setIcon(icons[data.color]); 
                         
-                        // ★ 현재 내가 타이핑 중이 아닐 때만 팝업창 글씨 업데이트 (입력 끊김 방지)
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) {
                             activeTextDiv.innerText = data.text;
@@ -336,7 +339,6 @@
                     }
                 });
 
-                // 3. 누군가 삭제했을 때 '그 마커만' 지도에서 지우기
                 markersRef.on('child_removed', function(snapshot) {
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
