@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <title>양지파인리조트 관리맵</title>
+    <title>양지파인리조트 통합 관리맵</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
@@ -21,31 +21,14 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
-        .info-panel {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(8px);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            border: 1px solid rgba(0,0,0,0.05);
-            width: 330px; 
-            box-sizing: border-box;
-            transition: opacity 0.2s; 
-        }
-        
+        .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 330px; box-sizing: border-box; transition: opacity 0.2s; }
         .close-btn { position: absolute; top: 12px; right: 15px; font-size: 18px; color: #a0aec0; cursor: pointer; background: none; border: none; padding: 5px; transition: color 0.2s; }
         .close-btn:hover { color: #4a5568; }
-
         .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
         .info-toggle-btn:hover { background: #f8fafc; }
-
         .brand-logo { text-align: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; margin-top: 5px; }
         .brand-logo img { max-height: 40px; width: auto; }
-
+        
         .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 700; text-align: center; letter-spacing: -0.5px; }
 
         .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
@@ -54,7 +37,6 @@
         .search-box button { padding: 0 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
         .search-box button:hover { background: #2563eb; }
 
-        /* ★ 4가지 색상을 위해 2줄(그리드)로 정렬 */
         .legend-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; white-space: nowrap; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -74,6 +56,44 @@
         .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
         .editable-popup:focus { border-color: #3182ce; }
         
+        /* ★ 수달 팝업 CSS */
+        #otter-container {
+            position: fixed;
+            bottom: -300px; /* 기본은 화면 아래에 숨김 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            transition: bottom 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* 띠용~ 하고 올라오는 효과 */
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #otter-container.show { bottom: 40px; } /* 클래스가 추가되면 위로 솟아오름 */
+        
+        @keyframes bobbing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .otter-anim {
+            animation: bobbing 2s infinite ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .otter-speech {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 14px;
+            color: #2d3748;
+            margin-bottom: -15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 2px solid #3b82f6;
+            z-index: 2;
+        }
+
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 20px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
@@ -84,11 +104,42 @@
             .legend-item { font-size: 13px; }
             .color-dot { width: 12px; height: 12px; }
             .guide-list { font-size: 14px; }
+            #otter-container.show { bottom: 80px; }
         }
     </style>
 </head>
 <body>
     
+    <!-- ★ 숨겨진 수달 영역 (직접 그린 벡터 이미지) -->
+    <div id="otter-container" onclick="toggleOtter()">
+        <div class="otter-anim">
+            <div class="otter-speech">앗! 저수지에 오셨군요 💦</div>
+            <svg width="150" height="150" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="100" rx="45" ry="10" fill="#3b82f6" opacity="0.6"/>
+                <ellipse cx="50" cy="100" rx="25" ry="5" fill="#60a5fa" opacity="0.8"/>
+                <path d="M 25 100 C 25 40, 75 40, 75 100 Z" fill="#8B5A2B"/>
+                <path d="M 35 100 C 35 60, 65 60, 65 100 Z" fill="#D2B48C"/>
+                <circle cx="30" cy="35" r="8" fill="#8B5A2B"/>
+                <circle cx="70" cy="35" r="8" fill="#8B5A2B"/>
+                <circle cx="30" cy="35" r="4" fill="#6B4226"/>
+                <circle cx="70" cy="35" r="4" fill="#6B4226"/>
+                <circle cx="50" cy="45" r="24" fill="#8B5A2B"/>
+                <ellipse cx="50" cy="52" rx="14" ry="10" fill="#D2B48C"/>
+                <ellipse cx="50" cy="48" rx="5" ry="3" fill="#1A1A1A"/>
+                <circle cx="41" cy="41" r="3.5" fill="#1A1A1A"/>
+                <circle cx="59" cy="41" r="3.5" fill="#1A1A1A"/>
+                <circle cx="42" cy="40" r="1.2" fill="#FFFFFF"/>
+                <circle cx="60" cy="40" r="1.2" fill="#FFFFFF"/>
+                <path d="M 45 54 Q 50 58 55 54" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
+                <ellipse cx="36" cy="48" rx="4" ry="2" fill="#FFB6C1" opacity="0.7"/>
+                <ellipse cx="64" cy="48" rx="4" ry="2" fill="#FFB6C1" opacity="0.7"/>
+                <ellipse cx="40" cy="75" rx="6" ry="10" fill="#6B4226"/>
+                <ellipse cx="60" cy="75" rx="6" ry="10" fill="#6B4226"/>
+                <ellipse cx="50" cy="75" rx="8" ry="6" fill="#F0E68C"/> <!-- 조개 -->
+            </svg>
+        </div>
+    </div>
+
     <div id="map"></div>
     <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️ 메뉴 열기</div>
 
@@ -106,7 +157,6 @@
             <div class="legend-item"><span class="color-dot dot-blue"></span>일반 시설</div>
             <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
             <div class="legend-item"><span class="color-dot dot-orange"></span>유지 보수</div>
-            <!-- ★ 범례에 조치 완료 추가 -->
             <div class="legend-item"><span class="color-dot dot-green"></span>조치 완료</div>
         </div>
         <ul class="guide-list">
@@ -119,6 +169,16 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ★ 수달을 보이고 숨기는 함수
+        window.toggleOtter = function() {
+            var otter = document.getElementById('otter-container');
+            if (otter.classList.contains('show')) {
+                otter.classList.remove('show');
+            } else {
+                otter.classList.add('show');
+            }
+        };
+
         var ACCESS_PASSWORD = "pine@2026!"; 
         var ADMIN_PASSWORD = "1122";  
 
@@ -160,7 +220,6 @@
                 'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                // ★ 초록색 마커 이미지
                 'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
             };
 
@@ -182,38 +241,26 @@
 
             window.searchMarker = function() {
                 var keyword = document.getElementById('searchInput').value.trim();
-                if (!keyword) {
-                    alert("검색할 시설물이나 지점의 이름을 입력해주세요.");
-                    return;
-                }
-
+                if (!keyword) { alert("검색할 시설물이나 지점의 이름을 입력해주세요."); return; }
                 var found = false;
                 for (var key in markerLayers) {
                     var marker = markerLayers[key];
                     var markerText = marker.getTooltip().getContent() || "";
-                    
                     if (markerText.includes(keyword)) {
                         map.setView(marker.getLatLng(), 20); 
                         marker.openPopup();
                         found = true;
-                        
-                        if(window.innerWidth <= 600) {
-                            togglePanel();
-                        }
+                        if(window.innerWidth <= 600) { togglePanel(); }
                         break; 
                     }
                 }
-
-                if (!found) {
-                    alert("'" + keyword + "' (이)라는 이름이 포함된 지점을 찾을 수 없습니다.");
-                }
+                if (!found) { alert("'" + keyword + "' (이)라는 이름이 포함된 지점을 찾을 수 없습니다."); }
             };
 
             function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
                 if(markerLayers[dbKey]) return; 
 
                 var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
-                
                 marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
 
                 var popupContent = document.createElement('div');
@@ -234,7 +281,6 @@
                 colorDiv.style.marginTop = '12px'; 
                 colorDiv.style.textAlign = 'center';
                 
-                // ★ 4가지 색상으로 버튼 배열
                 var colors = ['blue', 'red', 'orange', 'green'];
                 var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
                 
@@ -290,6 +336,14 @@
                 popupContent.appendChild(actionDiv);
                 
                 marker.bindPopup(popupContent);
+
+                // ★ 마커 클릭 시 특정 단어(분수대, 저수지)가 있으면 수달을 등장시키는 이벤트 추가!
+                marker.on('click', function(e) {
+                    var currentText = marker.getTooltip().getContent() || "";
+                    if (currentText.includes("분수대") || currentText.includes("저수지") || currentText.includes("수달")) {
+                        window.toggleOtter();
+                    }
+                });
 
                 marker.on('dragend', function(e) {
                     var pos = marker.getLatLng();
@@ -348,7 +402,7 @@
             }
 
             map.on('click', function(e) {
-                var newName = prompt("추가할 지점의 이름을 적어주세요.");
+                var newName = prompt("추가할 지점의 이름을 적어주세요.\n('분수대' 또는 '저수지' 단어를 넣으면 재미있는 일이 생깁니다!)");
                 if (newName && newName.trim() !== "" && database) {
                     var newMarkerRef = database.ref('markers').push();
                     newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: 'blue' });
