@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <title>양지파인리조트 관리맵</title>
+    <title>양지파인리조트 통합 관리맵</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
@@ -10,15 +10,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
     
-    <!-- 맵 라이브러리 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- 파이어베이스 라이브러리 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <!-- ★ 엑셀 변환 라이브러리 (SheetJS) 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -34,7 +29,6 @@
         
         .brand-logo { text-align: center; margin-bottom: 12px; margin-top: 2px; }
         .brand-logo img { max-height: 38px; width: auto; }
-        
         .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 800; text-align: center; letter-spacing: -0.5px; }
 
         .weather-widget { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -50,17 +44,15 @@
         .legend-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; white-space: nowrap; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .dot-blue { background-color: #3b82f6; }
-        .dot-red { background-color: #ef4444; }
-        .dot-orange { background-color: #f97316; }
-        .dot-green { background-color: #22c55e; }
+        .dot-blue { background-color: #3b82f6; } .dot-red { background-color: #ef4444; } .dot-orange { background-color: #f97316; } .dot-green { background-color: #22c55e; }
+        
+        /* ★ 가로등 범례 추가 */
+        .legend-lamp-box { grid-column: span 2; display: flex; justify-content: center; gap: 15px; font-size: 12.5px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; margin-top: -3px; }
 
-        /* ★ 엑셀 & 인쇄 버튼 스타일 */
         .action-btns { display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid #edf2f7; padding-top: 15px; }
         .action-btn { flex: 1; padding: 12px 0; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .action-btn:hover { opacity: 0.9; }
-        .btn-excel { background-color: #10b981; } /* 초록색 엑셀톤 */
-        .btn-print { background-color: #475569; } /* 슬레이트 그레이 */
+        .btn-excel { background-color: #10b981; } .btn-print { background-color: #475569; }
 
         .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4a5568; line-height: 1.7; }
         .guide-list li { position: relative; padding-left: 12px; margin-bottom: 6px; }
@@ -82,17 +74,13 @@
             .info-panel { top: auto; bottom: 20px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .brand-logo img { max-height: 32px; } 
-            .weather-widget { padding: 12px; }
-            .weather-date { font-size: 14px; }
-            .weather-info { font-size: 15px; padding: 6px 14px; }
+            .weather-widget { padding: 12px; } .weather-date { font-size: 14px; } .weather-info { font-size: 15px; padding: 6px 14px; }
             .search-box input, .search-box button { font-size: 15px; padding: 12px; }
-            .legend-box { padding: 10px; gap: 6px; }
-            .legend-item { font-size: 13px; }
+            .legend-box { padding: 10px; gap: 6px; } .legend-item { font-size: 13px; }
             .custom-tooltip { font-size: 16.5px; padding: 8px 14px; border-radius: 8px; }
             .editable-popup { font-size: 17px; padding: 10px; }
         }
 
-        /* ★ 인쇄 전용 CSS (출력할 때 메뉴 숨기고 지도만 꽉 차게) */
         @media print {
             @page { size: landscape; margin: 0; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
@@ -118,7 +106,7 @@
         </div>
 
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="시설물명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
+            <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
             <button onclick="searchMarker()">찾기</button>
         </div>
 
@@ -127,6 +115,11 @@
             <div class="legend-item"><span class="color-dot dot-red"></span>안전 위험</div>
             <div class="legend-item"><span class="color-dot dot-orange"></span>유지 보수</div>
             <div class="legend-item"><span class="color-dot dot-green"></span>조치 완료</div>
+            <!-- ★ 스마트 가로등 안내 추가 -->
+            <div class="legend-item legend-lamp-box">
+                <span style="font-weight:700;">💡 스마트 가로등</span> 
+                <span style="color:#64748b;">(이름에 '가로등' 입력)</span>
+            </div>
         </div>
         <ul class="guide-list">
             <li><b>위치 이동:</b> 마커 누르고 [잠금해제] 버튼 클릭</li>
@@ -135,7 +128,6 @@
             <li style="color:#e53e3e;"><b>마커 삭제:</b> 마커를 길게 누르기 (우클릭)</li>
         </ul>
 
-        <!-- ★ 보고서용 엑셀 다운로드 및 인쇄 버튼 -->
         <div class="action-btns">
             <button class="action-btn btn-excel" onclick="downloadExcel()">📊 엑셀 저장</button>
             <button class="action-btn btn-print" onclick="window.print()">🖨️ 맵 인쇄</button>
@@ -212,64 +204,76 @@
             }).addTo(map);
 
             var iconOptions = { iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] };
+            
+            // ★ 스마트 가로등용 커스텀 SVG 아이콘 제작
+            var lampOffIcon = L.divIcon({
+                html: `<div style="text-align:center;">
+                        <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="13" y="14" width="4" height="26" rx="1" fill="#64748b"/>
+                            <path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#475569"/>
+                            <circle cx="15" cy="14" r="5" fill="#cbd5e1"/>
+                        </svg>
+                       </div>`,
+                className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35]
+            });
+
+            var lampOnIcon = L.divIcon({
+                html: `<div style="text-align:center;">
+                        <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+                                    <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
+                                </radialGradient>
+                            </defs>
+                            <circle cx="15" cy="14" r="15" fill="url(#glow)"/>
+                            <rect x="13" y="14" width="4" height="26" rx="1" fill="#1e293b"/>
+                            <path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#0f172a"/>
+                            <circle cx="15" cy="14" r="5" fill="#fde047" filter="drop-shadow(0 0 4px #eab308)"/>
+                        </svg>
+                       </div>`,
+                className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35]
+            });
+
             var icons = {
                 'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
                 'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions))
+                'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
+                'lamp-off': lampOffIcon, // ★ 꺼진 가로등 아이콘 추가
+                'lamp-on': lampOnIcon    // ★ 켜진 가로등 아이콘 추가
             };
 
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
-            // ★ 엑셀 다운로드 함수 (색상별 정렬 기능 포함)
+            // ★ 엑셀 다운로드 시 가로등 상태도 정렬되도록 업데이트
             window.downloadExcel = function() {
                 var keys = Object.keys(markerLayers);
-                if(keys.length === 0) {
-                    alert("저장된 시설물 마커가 없습니다.");
-                    return;
-                }
+                if(keys.length === 0) { alert("저장된 시설물 마커가 없습니다."); return; }
 
-                // 1. 데이터 분류 및 정렬 준비 (위험도 순서: 빨강 -> 주황 -> 파랑 -> 초록)
-                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료' };
-                var colorPriority = { 'red': 1, 'orange': 2, 'blue': 3, 'green': 4 };
+                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료', 'lamp-on': '💡 스마트 가로등 (켜짐)', 'lamp-off': '⚫ 스마트 가로등 (꺼짐)' };
+                var colorPriority = { 'red': 1, 'orange': 2, 'lamp-on': 3, 'lamp-off': 4, 'blue': 5, 'green': 6 }; // 엑셀 정렬 우선순위
                 var exportList = [];
 
                 keys.forEach(function(key) {
                     var marker = markerLayers[key];
                     var text = marker.getTooltip().getContent() || "";
-                    var color = marker.customColor || 'blue'; // 마커 색상 속성
-
-                    exportList.push({
-                        status: colorNameMap[color],
-                        name: text,
-                        priority: colorPriority[color]
-                    });
+                    var color = marker.customColor || 'blue'; 
+                    exportList.push({ status: colorNameMap[color], name: text, priority: colorPriority[color] });
                 });
 
-                // 2. 위험도(우선순위) 순으로 데이터 정렬
-                exportList.sort(function(a, b) {
-                    return a.priority - b.priority;
-                });
+                exportList.sort(function(a, b) { return a.priority - b.priority; });
 
-                // 3. 엑셀 데이터 배열 만들기 (출력 시 보기 좋게 빈칸 추가)
                 var excelData = [];
-                excelData.push(["상태 분류", "시설물 / 지점명", "비고 (현장 조치사항 기입)"]); // 헤더
+                excelData.push(["상태 분류", "시설물 / 지점명", "비고 (현장 조치사항 기입)"]); 
+                exportList.forEach(function(item) { excelData.push([item.status, item.name, ""]); });
 
-                exportList.forEach(function(item) {
-                    excelData.push([item.status, item.name, ""]);
-                });
-
-                // 4. 엑셀 파일 생성
                 var wb = XLSX.utils.book_new();
                 var ws = XLSX.utils.aoa_to_sheet(excelData);
-
-                // 열 너비(Column Width) 넓게 설정
-                ws['!cols'] = [ {wch: 15}, {wch: 40}, {wch: 35} ];
-
+                ws['!cols'] = [ {wch: 22}, {wch: 40}, {wch: 35} ];
                 XLSX.utils.book_append_sheet(wb, ws, "시설물 현황");
 
-                // 5. 다운로드 실행 (파일명에 오늘 날짜 추가)
                 var today = new Date();
                 var dateTitle = today.getFullYear() + "년" + (today.getMonth()+1) + "월" + today.getDate() + "일";
                 XLSX.writeFile(wb, "양지파인리조트_관리현황_" + dateTitle + ".xlsx");
@@ -278,39 +282,35 @@
             window.togglePanel = function() {
                 var panel = document.getElementById('info-panel');
                 var toggleBtn = document.getElementById('info-toggle');
-                if (panel.style.display === 'none') {
-                    panel.style.display = 'block';     
-                    toggleBtn.style.display = 'none';  
-                } else {
-                    panel.style.display = 'none';      
-                    toggleBtn.style.display = 'flex';  
-                }
+                if (panel.style.display === 'none') { panel.style.display = 'block'; toggleBtn.style.display = 'none'; } 
+                else { panel.style.display = 'none'; toggleBtn.style.display = 'flex'; }
             };
 
             window.searchMarker = function() {
                 var keyword = document.getElementById('searchInput').value.trim();
-                if (!keyword) { alert("검색할 시설물이나 지점의 이름을 입력해주세요."); return; }
+                if (!keyword) { alert("검색할 이름을 입력해주세요."); return; }
                 var found = false;
                 for (var key in markerLayers) {
                     var marker = markerLayers[key];
                     var markerText = marker.getTooltip().getContent() || "";
                     if (markerText.includes(keyword)) {
-                        map.setView(marker.getLatLng(), 20); 
-                        marker.openPopup();
-                        found = true;
+                        map.setView(marker.getLatLng(), 20); marker.openPopup(); found = true;
                         if(window.innerWidth <= 600) { togglePanel(); }
                         break; 
                     }
                 }
-                if (!found) { alert("'" + keyword + "' (이)라는 이름이 포함된 지점을 찾을 수 없습니다."); }
+                if (!found) { alert("'" + keyword + "' (이)라는 지점을 찾을 수 없습니다."); }
             };
 
             function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
                 if(markerLayers[dbKey]) return; 
 
                 var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
-                marker.customColor = colorType; // ★ 엑셀 추출을 위해 현재 색상 저장
-                marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
+                marker.customColor = colorType; 
+                
+                // 툴팁 위치 미세 조정 (가로등일 경우 약간 위로)
+                var tooltipOffset = colorType.startsWith('lamp') ? [15, -20] : [1, -34];
+                marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip', offset: tooltipOffset });
 
                 var popupContent = document.createElement('div');
                 var textDiv = document.createElement('div');
@@ -329,57 +329,68 @@
                 colorDiv.style.marginTop = '12px'; 
                 colorDiv.style.textAlign = 'center';
                 
-                var colors = ['blue', 'red', 'orange', 'green'];
-                var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
-                
-                colors.forEach(function(c) {
-                    var btn = document.createElement('button');
-                    btn.style.backgroundColor = colorHex[c];
-                    btn.style.border = '2px solid transparent'; 
-                    btn.style.width = '28px'; btn.style.height = '28px';
-                    btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; 
-                    btn.style.cursor = 'pointer';
-                    btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.15)';
-                    btn.style.transition = 'transform 0.1s';
-                    
-                    btn.onmousedown = function() { btn.style.transform = 'scale(0.9)'; }
-                    btn.onmouseup = function() { btn.style.transform = 'scale(1)'; }
-                    
-                    btn.onclick = function() {
-                        marker.setIcon(icons[c]);
-                        marker.customColor = c; // 색상 업데이트
-                        if(database) database.ref('markers/' + dbKey).update({ color: c });
+                // ★ 가로등 여부 판단 (색상 코드가 'lamp'로 시작하면 가로등 전용 UI 적용)
+                var isLamp = colorType.startsWith('lamp');
+
+                if (isLamp) {
+                    // 가로등 전용: 켜기/끄기 빅 버튼
+                    var onBtn = document.createElement('button');
+                    onBtn.innerText = "💡 켜기 (ON)";
+                    onBtn.style.padding = "8px 12px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px";
+                    onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
+
+                    var offBtn = document.createElement('button');
+                    offBtn.innerText = "⚫ 끄기 (OFF)";
+                    offBtn.style.padding = "8px 12px"; offBtn.style.margin = "0 4px"; offBtn.style.borderRadius = "6px";
+                    offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
+
+                    onBtn.onclick = function() {
+                        marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on';
+                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' });
                     };
-                    colorDiv.appendChild(btn);
-                });
+                    offBtn.onclick = function() {
+                        marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off';
+                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' });
+                    };
+                    colorDiv.appendChild(onBtn);
+                    colorDiv.appendChild(offBtn);
+                } 
+                else {
+                    // 일반 시설 전용: 4가지 색상 점 버튼
+                    var colors = ['blue', 'red', 'orange', 'green'];
+                    var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
+                    colors.forEach(function(c) {
+                        var btn = document.createElement('button');
+                        btn.style.backgroundColor = colorHex[c];
+                        btn.style.border = '2px solid transparent'; btn.style.width = '28px'; btn.style.height = '28px';
+                        btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; btn.style.cursor = 'pointer';
+                        btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.15)'; btn.style.transition = 'transform 0.1s';
+                        btn.onmousedown = function() { btn.style.transform = 'scale(0.9)'; }
+                        btn.onmouseup = function() { btn.style.transform = 'scale(1)'; }
+                        btn.onclick = function() {
+                            marker.setIcon(icons[c]); marker.customColor = c; 
+                            if(database) database.ref('markers/' + dbKey).update({ color: c });
+                        };
+                        colorDiv.appendChild(btn);
+                    });
+                }
                 popupContent.appendChild(colorDiv);
 
                 var actionDiv = document.createElement('div');
-                actionDiv.style.marginTop = '15px';
-                actionDiv.style.textAlign = 'center';
+                actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
                 
                 var moveBtn = document.createElement('button');
                 moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
-                moveBtn.style.padding = "10px";
-                moveBtn.style.fontSize = "14px";
-                moveBtn.style.fontWeight = "600";
-                moveBtn.style.backgroundColor = "#1e293b";
-                moveBtn.style.color = "white";
-                moveBtn.style.border = "none";
-                moveBtn.style.borderRadius = "6px";
-                moveBtn.style.cursor = "pointer";
-                moveBtn.style.width = "100%";
-                moveBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                moveBtn.style.padding = "10px"; moveBtn.style.fontSize = "14px"; moveBtn.style.fontWeight = "600";
+                moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none";
+                moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%"; moveBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
                 
                 moveBtn.onclick = function() {
                     var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:");
                     if (inputPwd === ADMIN_PASSWORD) {
-                        marker.dragging.enable(); 
-                        marker.closePopup();      
-                        alert("✅ 잠금이 해제되었습니다.\n원하는 위치로 마커를 드래그 하세요.\n(이동을 마치면 자동으로 다시 잠깁니다.)");
-                    } else if (inputPwd !== null) {
-                        alert("비밀번호가 일치하지 않습니다.");
-                    }
+                        marker.dragging.enable(); marker.closePopup();      
+                        alert("✅ 잠금이 해제되었습니다.\n원하는 위치로 마커를 드래그 하세요.");
+                    } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
                 };
                 actionDiv.appendChild(moveBtn);
                 popupContent.appendChild(actionDiv);
@@ -390,50 +401,35 @@
                     var currentText = marker.getTooltip().getContent() || "";
                     if (currentText.includes("분수대") || currentText.includes("저수지") || currentText.includes("수달")) {
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === dbKey) {
-                            map.removeLayer(window.currentOtterMarker);
-                            window.currentOtterMarker = null;
+                            map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null;
                         } 
                         else {
-                            if (window.currentOtterMarker) {
-                                map.removeLayer(window.currentOtterMarker);
-                            }
-                            
+                            if (window.currentOtterMarker) { map.removeLayer(window.currentOtterMarker); }
                             var otterHtml = `
                                 <div class="otter-pop-container">
-                                    <div class="otter-speech-bubble">
-                                        짠! 우리는 금실 좋은<br><b>수달 부부</b>예요 🦦💕<br>깨끗한 리조트가 너무 좋아요!
-                                    </div>
+                                    <div class="otter-speech-bubble">짠! 우리는 금실 좋은<br><b>수달 부부</b>예요 🦦💕</div>
                                     <svg width="180" height="130" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
                                       <ellipse cx="80" cy="100" rx="70" ry="15" fill="#60a5fa" opacity="0.6"/>
                                       <ellipse cx="80" cy="105" rx="50" ry="10" fill="#3b82f6" opacity="0.4"/>
                                       <g transform="translate(-15, 0)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#6B4226"/> 
-                                          <circle cx="65" cy="50" r="7" fill="#6B4226"/> 
-                                          <circle cx="90" cy="50" r="7" fill="#6B4226"/> 
-                                          <circle cx="77.5" cy="55" r="20" fill="#6B4226"/> 
-                                          <ellipse cx="77.5" cy="62" rx="12" ry="8" fill="#D2B48C"/> 
-                                          <ellipse cx="77.5" cy="58" rx="4" ry="2.5" fill="#111"/> 
-                                          <circle cx="70" cy="52" r="2.5" fill="#111"/> 
-                                          <circle cx="85" cy="52" r="2.5" fill="#111"/> 
-                                          <circle cx="69" cy="51" r="1" fill="#fff"/>
-                                          <circle cx="84" cy="51" r="1" fill="#fff"/>
-                                          <path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/>
-                                          <ellipse cx="68" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/> 
-                                          <ellipse cx="87" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
+                                          <circle cx="65" cy="50" r="7" fill="#6B4226"/><circle cx="90" cy="50" r="7" fill="#6B4226"/> 
+                                          <circle cx="77.5" cy="55" r="20" fill="#6B4226"/> <ellipse cx="77.5" cy="62" rx="12" ry="8" fill="#D2B48C"/> 
+                                          <ellipse cx="77.5" cy="58" rx="4" ry="2.5" fill="#111"/> <circle cx="70" cy="52" r="2.5" fill="#111"/> 
+                                          <circle cx="85" cy="52" r="2.5" fill="#111"/> <circle cx="69" cy="51" r="1" fill="#fff"/>
+                                          <circle cx="84" cy="51" r="1" fill="#fff"/> <path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/>
+                                          <ellipse cx="68" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/> <ellipse cx="87" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
                                           <path d="M 85 80 Q 100 85 105 80" fill="none" stroke="#6B4226" stroke-width="6" stroke-linecap="round"/>
                                       </g>
                                       <g transform="translate(25, 5)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#8B5A2B"/> 
-                                          <circle cx="65" cy="50" r="7" fill="#8B5A2B"/>
-                                          <circle cx="90" cy="50" r="7" fill="#8B5A2B"/>
-                                          <circle cx="77.5" cy="55" r="19" fill="#8B5A2B"/> 
-                                          <ellipse cx="77.5" cy="62" rx="11" ry="7" fill="#E6C280"/> 
+                                          <circle cx="65" cy="50" r="7" fill="#8B5A2B"/><circle cx="90" cy="50" r="7" fill="#8B5A2B"/>
+                                          <circle cx="77.5" cy="55" r="19" fill="#8B5A2B"/> <ellipse cx="77.5" cy="62" rx="11" ry="7" fill="#E6C280"/> 
                                           <ellipse cx="77.5" cy="58" rx="3.5" ry="2" fill="#111"/>
                                           <path d="M 67 52 Q 70 49 73 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
                                           <path d="M 82 52 Q 85 49 88 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
                                           <path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/>
-                                          <circle cx="68" cy="58" r="3" fill="#FF69B4" opacity="0.6"/> 
-                                          <circle cx="87" cy="58" r="3" fill="#FF69B4" opacity="0.6"/>
+                                          <circle cx="68" cy="58" r="3" fill="#FF69B4" opacity="0.6"/> <circle cx="87" cy="58" r="3" fill="#FF69B4" opacity="0.6"/>
                                           <path d="M 70 80 Q 55 85 50 80" fill="none" stroke="#8B5A2B" stroke-width="5" stroke-linecap="round"/>
                                       </g>
                                       <path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff4d4d" transform="translate(-10, -15) scale(0.7)"/>
@@ -441,15 +437,10 @@
                                     </svg>
                                 </div>
                             `;
-                            
                             var otterIcon = L.divIcon({ html: otterHtml, className: 'otter-div-icon', iconSize: [180, 200], iconAnchor: [90, 240] });
                             window.currentOtterMarker = L.marker(marker.getLatLng(), {icon: otterIcon, zIndexOffset: 9999}).addTo(map);
                             window.currentOtterMarker.targetId = dbKey;
-                            
-                            window.currentOtterMarker.on('click', function() {
-                                map.removeLayer(window.currentOtterMarker);
-                                window.currentOtterMarker = null;
-                            });
+                            window.currentOtterMarker.on('click', function() { map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null; });
                         }
                     }
                 });
@@ -465,9 +456,7 @@
                     var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
                     if (inputPwd === ADMIN_PASSWORD) {
                         if(database) database.ref('markers/' + dbKey).remove(); 
-                    } else if (inputPwd !== null) { 
-                        alert("비밀번호가 일치하지 않습니다."); 
-                    }
+                    } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
                 });
 
                 markersGroup.addLayer(marker);
@@ -494,7 +483,7 @@
                             marker.setTooltipContent(data.text); 
                         }
                         marker.setIcon(icons[data.color]);
-                        marker.customColor = data.color; // ★ 색상 변경 시 엑셀 데이터용 속성도 즉시 업데이트 
+                        marker.customColor = data.color; 
                         
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) {
@@ -507,8 +496,7 @@
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
-                            map.removeLayer(window.currentOtterMarker);
-                            window.currentOtterMarker = null;
+                            map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null;
                         }
                         markersGroup.removeLayer(marker);
                         delete markerLayers[snapshot.key];
@@ -517,10 +505,18 @@
             }
 
             map.on('click', function(e) {
-                var newName = prompt("추가할 지점의 이름을 적어주세요.");
+                // ★ 이름에 따라 스마트 가로등 모드로 자동 분기 처리!
+                var newName = prompt("추가할 지점의 이름을 적어주세요.\n(💡 꿀팁: 이름에 '가로등'이나 '조명' 단어를 넣으면 스마트 스위치 마커가 됩니다!)");
                 if (newName && newName.trim() !== "" && database) {
+                    
+                    var initialColor = 'blue'; // 기본은 일반 시설물 (파란색)
+                    // 사용자가 가로등/조명 단어를 썼다면, 초기 상태를 '꺼진 가로등'으로 셋팅
+                    if (newName.includes('가로등') || newName.includes('조명')) {
+                        initialColor = 'lamp-off'; 
+                    }
+
                     var newMarkerRef = database.ref('markers').push();
-                    newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: 'blue' });
+                    newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
                 }
             });
         } 
