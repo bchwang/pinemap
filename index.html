@@ -26,10 +26,41 @@
         .close-btn:hover { color: #4a5568; }
         .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
         .info-toggle-btn:hover { background: #f8fafc; }
-        .brand-logo { text-align: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; margin-top: 5px; }
-        .brand-logo img { max-height: 40px; width: auto; }
         
-        .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 700; text-align: center; letter-spacing: -0.5px; }
+        .brand-logo { text-align: center; margin-bottom: 12px; margin-top: 2px; }
+        .brand-logo img { max-height: 38px; width: auto; }
+        
+        .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 800; text-align: center; letter-spacing: -0.5px; }
+
+        /* ★ 날짜 & 날씨 위젯 세련된 스타일로 변경 */
+        .weather-widget {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .weather-date {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 600;
+        }
+        .weather-info { 
+            font-size: 14px; 
+            color: #0f172a; 
+            font-weight: 700; 
+            background: #ffffff; 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
         .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
         .search-box input { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
@@ -52,48 +83,55 @@
         .guide-list .text-danger { color: #e53e3e; font-weight: 600; }
         .guide-list .text-danger::before { color: #e53e3e; }
 
-        .custom-tooltip { background: rgba(26, 32, 44, 0.85); border: none; color: white; font-weight: 600; border-radius: 6px; font-size: 14px; padding: 6px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); backdrop-filter: blur(4px); }
+        /* ★ 마커(말풍선) 기본 디자인 (PC용: 깔끔하고 적당한 크기) */
+        .custom-tooltip { 
+            background: rgba(30, 41, 59, 0.95); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            color: white; 
+            font-weight: 700; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            padding: 6px 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            backdrop-filter: blur(4px); 
+            white-space: nowrap;
+        }
         .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
         .editable-popup:focus { border-color: #3182ce; }
         
-        /* ★ 수달 팝업 전용 CSS (마커 위에 둥둥 떠다니는 애니메이션) */
         .otter-div-icon { background: transparent; border: none; }
-        .otter-pop-container {
-            display: flex; flex-direction: column; align-items: center;
-            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, bobbing 2s infinite ease-in-out 0.5s;
-            transform-origin: bottom center; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); cursor: pointer;
-        }
-        @keyframes popUp {
-            0% { transform: scale(0) translateY(50px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-        @keyframes bobbing {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-        .otter-speech-bubble {
-            background: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; font-weight: 800; color: #2d3748;
-            text-align: center; border: 2px solid #3b82f6; margin-bottom: -10px; position: relative; z-index: 2; line-height: 1.4;
-        }
-        .otter-speech-bubble::after {
-            content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-            border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent;
-        }
-        .otter-speech-bubble::before {
-            content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
-            border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1;
-        }
+        .otter-pop-container { display: flex; flex-direction: column; align-items: center; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, bobbing 2s infinite ease-in-out 0.5s; transform-origin: bottom center; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); cursor: pointer; }
+        @keyframes popUp { 0% { transform: scale(0) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes bobbing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        .otter-speech-bubble { background: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; font-weight: 800; color: #2d3748; text-align: center; border: 2px solid #3b82f6; margin-bottom: -10px; position: relative; z-index: 2; line-height: 1.4; }
+        .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
+        .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
+        /* ★ 모바일 스마트폰 화면 최적화 (반응형 적용) */
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 20px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .brand-logo img { max-height: 32px; } 
-            .panel-title { font-size: 18px; margin-bottom: 12px; }
+            
+            /* 날짜/날씨 크기도 모바일에 맞게 살짝 키움 */
+            .weather-widget { padding: 12px; }
+            .weather-date { font-size: 14px; }
+            .weather-info { font-size: 15px; padding: 6px 14px; }
+            
             .search-box input, .search-box button { font-size: 15px; padding: 12px; }
             .legend-box { padding: 10px; gap: 6px; }
             .legend-item { font-size: 13px; }
-            .color-dot { width: 12px; height: 12px; }
-            .guide-list { font-size: 14px; }
+            
+            /* ★ 핵심: 스마트폰에서 마커 글씨 크기를 대폭 키워서 가독성 확보 */
+            .custom-tooltip {
+                font-size: 16.5px;
+                padding: 8px 14px;
+                border-radius: 8px;
+            }
+            .editable-popup {
+                font-size: 17px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -107,6 +145,12 @@
         <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
         <h3 class="panel-title">시설물 종합 관리 맵</h3>
         
+        <!-- 날짜 및 실시간 날씨 위젯 -->
+        <div class="weather-widget">
+            <span class="weather-date" id="current-date">📅 날짜 로딩중</span>
+            <span class="weather-info" id="current-weather">🌤️ 확인중</span>
+        </div>
+
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
             <button onclick="searchMarker()">찾기</button>
@@ -128,7 +172,38 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 현재 화면에 떠있는 수달 마커를 기억하는 변수
+        // 날짜 및 실시간 날씨 업데이트 함수
+        function updateDateAndWeather() {
+            var now = new Date();
+            var days = ['일', '월', '화', '수', '목', '금', '토'];
+            var dateStr = (now.getMonth() + 1) + "월 " + now.getDate() + "일 (" + days[now.getDay()] + ")";
+            document.getElementById('current-date').innerText = "📅 " + dateStr;
+
+            var weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=37.2115&longitude=127.2940&current=temperature_2m,weather_code&timezone=Asia%2FSeoul";
+            
+            fetch(weatherUrl)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var temp = Math.round(data.current.temperature_2m);
+                    var code = data.current.weather_code;
+                    var wText = "맑음";
+                    var icon = "☀️";
+
+                    if (code === 1 || code === 2) { wText = "구름조금"; icon = "🌤️"; }
+                    else if (code === 3) { wText = "흐림"; icon = "☁️"; }
+                    else if (code >= 45 && code <= 48) { wText = "안개"; icon = "🌫️"; }
+                    else if (code >= 51 && code <= 67) { wText = "비"; icon = "🌧️"; }
+                    else if (code >= 71 && code <= 77) { wText = "눈"; icon = "❄️"; }
+                    else if (code >= 80 && code <= 82) { wText = "소나기"; icon = "🌦️"; }
+                    else if (code >= 95) { wText = "뇌우"; icon = "⚡"; }
+
+                    document.getElementById('current-weather').innerHTML = icon + " " + wText + " <span>" + temp + "℃</span>";
+                })
+                .catch(function(err) {
+                    document.getElementById('current-weather').innerText = "🌤️ 확인불가";
+                });
+        }
+
         window.currentOtterMarker = null;
 
         var ACCESS_PASSWORD = "pine@2026!"; 
@@ -144,6 +219,8 @@
                 </div>`;
         } 
         else {
+            updateDateAndWeather(); 
+
             const firebaseConfig = {
                 apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
                 authDomain: "pine-map-4a6a3.firebaseapp.com",
@@ -181,7 +258,6 @@
             window.togglePanel = function() {
                 var panel = document.getElementById('info-panel');
                 var toggleBtn = document.getElementById('info-toggle');
-                
                 if (panel.style.display === 'none') {
                     panel.style.display = 'block';     
                     toggleBtn.style.display = 'none';  
@@ -216,7 +292,6 @@
                 marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
 
                 var popupContent = document.createElement('div');
-                
                 var textDiv = document.createElement('div');
                 textDiv.id = 'popup-text-' + dbKey; 
                 textDiv.className = 'editable-popup';
@@ -289,34 +364,27 @@
                 
                 marker.bindPopup(popupContent);
 
-                // ★ 마커를 클릭했을 때 '분수대'나 '저수지' 단어가 있으면 수달 부부를 마커 바로 위에 띄움
                 marker.on('click', function(e) {
                     var currentText = marker.getTooltip().getContent() || "";
                     if (currentText.includes("분수대") || currentText.includes("저수지") || currentText.includes("수달")) {
-                        
-                        // 이미 띄워진 수달이 있고, 방금 누른 그 마커라면 숨기기 (토글)
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === dbKey) {
                             map.removeLayer(window.currentOtterMarker);
                             window.currentOtterMarker = null;
                         } 
                         else {
-                            // 다른 곳에 수달이 떠있다면 지우기
                             if (window.currentOtterMarker) {
                                 map.removeLayer(window.currentOtterMarker);
                             }
                             
-                            // ★ 손을 잡고 있는 다정한 수달 부부 SVG 코드
                             var otterHtml = `
                                 <div class="otter-pop-container">
                                     <div class="otter-speech-bubble">
                                         짠! 우리는 금실 좋은<br><b>수달 부부</b>예요 🦦💕<br>깨끗한 리조트가 너무 좋아요!
                                     </div>
                                     <svg width="180" height="130" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-                                      <!-- 물결 -->
                                       <ellipse cx="80" cy="100" rx="70" ry="15" fill="#60a5fa" opacity="0.6"/>
                                       <ellipse cx="80" cy="105" rx="50" ry="10" fill="#3b82f6" opacity="0.4"/>
                                       
-                                      <!-- 왼쪽 수달 (남편 수달) -->
                                       <g transform="translate(-15, 0)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#6B4226"/> 
                                           <circle cx="65" cy="50" r="7" fill="#6B4226"/> 
@@ -331,11 +399,9 @@
                                           <path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/>
                                           <ellipse cx="68" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/> 
                                           <ellipse cx="87" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
-                                          <!-- 손 잡는 앞발 -->
                                           <path d="M 85 80 Q 100 85 105 80" fill="none" stroke="#6B4226" stroke-width="6" stroke-linecap="round"/>
                                       </g>
 
-                                      <!-- 오른쪽 수달 (아내 수달) -->
                                       <g transform="translate(25, 5)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#8B5A2B"/> 
                                           <circle cx="65" cy="50" r="7" fill="#8B5A2B"/>
@@ -343,37 +409,30 @@
                                           <circle cx="77.5" cy="55" r="19" fill="#8B5A2B"/> 
                                           <ellipse cx="77.5" cy="62" rx="11" ry="7" fill="#E6C280"/> 
                                           <ellipse cx="77.5" cy="58" rx="3.5" ry="2" fill="#111"/>
-                                          <!-- 웃는 눈 -->
                                           <path d="M 67 52 Q 70 49 73 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
                                           <path d="M 82 52 Q 85 49 88 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
                                           <path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/>
-                                          <!-- 발그레한 볼 -->
                                           <circle cx="68" cy="58" r="3" fill="#FF69B4" opacity="0.6"/> 
                                           <circle cx="87" cy="58" r="3" fill="#FF69B4" opacity="0.6"/>
-                                          <!-- 손 잡는 앞발 -->
                                           <path d="M 70 80 Q 55 85 50 80" fill="none" stroke="#8B5A2B" stroke-width="5" stroke-linecap="round"/>
                                       </g>
                                       
-                                      <!-- 사랑의 하트 뿅뿅 -->
                                       <path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff4d4d" transform="translate(-10, -15) scale(0.7)"/>
                                       <path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff6b6b" transform="translate(20, -25) scale(0.5)"/>
                                     </svg>
                                 </div>
                             `;
                             
-                            // 수달을 마커(아이콘) 형태로 만들어서 지도에 추가
                             var otterIcon = L.divIcon({
                                 html: otterHtml,
                                 className: 'otter-div-icon',
                                 iconSize: [180, 200],
-                                iconAnchor: [90, 240] // 마커와 편집창 바로 위 공중에 예쁘게 뜨도록 위치 조정
+                                iconAnchor: [90, 240]
                             });
                             
-                            // 클릭한 마커 위치(lat, lng)에 수달 생성
                             window.currentOtterMarker = L.marker(marker.getLatLng(), {icon: otterIcon, zIndexOffset: 9999}).addTo(map);
                             window.currentOtterMarker.targetId = dbKey;
                             
-                            // 수달 자체를 클릭해도 다시 들어가도록 설정
                             window.currentOtterMarker.on('click', function() {
                                 map.removeLayer(window.currentOtterMarker);
                                 window.currentOtterMarker = null;
@@ -385,7 +444,6 @@
                 marker.on('dragend', function(e) {
                     var pos = marker.getLatLng();
                     if(database) database.ref('markers/' + dbKey).update({ lat: pos.lat, lng: pos.lng });
-                    
                     marker.dragging.disable(); 
                     alert("위치가 성공적으로 변경되어 다시 잠금 처리되었습니다.");
                 });
@@ -416,17 +474,13 @@
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
                         marker.setLatLng([data.lat, data.lng]); 
-                        
-                        // 위치가 바뀌면 떠있는 수달의 위치도 같이 따라가게 함
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
                             window.currentOtterMarker.setLatLng([data.lat, data.lng]);
                         }
-                        
                         if (marker.getTooltip().getContent() !== data.text) {
                             marker.setTooltipContent(data.text); 
                         }
                         marker.setIcon(icons[data.color]); 
-                        
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) {
                             activeTextDiv.innerText = data.text;
@@ -437,7 +491,6 @@
                 markersRef.on('child_removed', function(snapshot) {
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
-                        // 지워진 마커에 수달이 떠있었다면 수달도 같이 삭제
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
                             map.removeLayer(window.currentOtterMarker);
                             window.currentOtterMarker = null;
