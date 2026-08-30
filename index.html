@@ -9,19 +9,24 @@
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="apple-touch-icon-precomposed" href="icon.png">
     
+    <!-- 맵 라이브러리 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- 파이어베이스 라이브러리 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- ★ 엑셀 변환 라이브러리 (SheetJS) 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
-        .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 330px; box-sizing: border-box; transition: opacity 0.2s; }
+        .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 340px; box-sizing: border-box; transition: opacity 0.2s; }
         .close-btn { position: absolute; top: 12px; right: 15px; font-size: 18px; color: #a0aec0; cursor: pointer; background: none; border: none; padding: 5px; transition: color 0.2s; }
         .close-btn:hover { color: #4a5568; }
         .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
@@ -32,35 +37,9 @@
         
         .panel-title { margin: 0 0 15px 0; color: #1a202c; font-size: 17px; font-weight: 800; text-align: center; letter-spacing: -0.5px; }
 
-        /* ★ 날짜 & 날씨 위젯 세련된 스타일로 변경 */
-        .weather-widget {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .weather-date {
-            font-size: 13px;
-            color: #475569;
-            font-weight: 600;
-        }
-        .weather-info { 
-            font-size: 14px; 
-            color: #0f172a; 
-            font-weight: 700; 
-            background: #ffffff; 
-            padding: 5px 12px; 
-            border-radius: 20px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .weather-widget { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .weather-date { font-size: 13px; color: #475569; font-weight: 600; }
+        .weather-info { font-size: 14px; color: #0f172a; font-weight: 700; background: #ffffff; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 4px; }
 
         .search-box { display: flex; margin-bottom: 15px; gap: 8px; }
         .search-box input { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
@@ -76,26 +55,18 @@
         .dot-orange { background-color: #f97316; }
         .dot-green { background-color: #22c55e; }
 
+        /* ★ 엑셀 & 인쇄 버튼 스타일 */
+        .action-btns { display: flex; gap: 8px; margin-top: 15px; border-top: 1px solid #edf2f7; padding-top: 15px; }
+        .action-btn { flex: 1; padding: 12px 0; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .action-btn:hover { opacity: 0.9; }
+        .btn-excel { background-color: #10b981; } /* 초록색 엑셀톤 */
+        .btn-print { background-color: #475569; } /* 슬레이트 그레이 */
+
         .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4a5568; line-height: 1.7; }
         .guide-list li { position: relative; padding-left: 12px; margin-bottom: 6px; }
         .guide-list li::before { content: "•"; position: absolute; left: 0; color: #a0aec0; font-weight: bold; }
-        .guide-list li b { color: #2d3748; }
-        .guide-list .text-danger { color: #e53e3e; font-weight: 600; }
-        .guide-list .text-danger::before { color: #e53e3e; }
 
-        /* ★ 마커(말풍선) 기본 디자인 (PC용: 깔끔하고 적당한 크기) */
-        .custom-tooltip { 
-            background: rgba(30, 41, 59, 0.95); 
-            border: 1px solid rgba(255,255,255,0.15); 
-            color: white; 
-            font-weight: 700; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            padding: 6px 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-            backdrop-filter: blur(4px); 
-            white-space: nowrap;
-        }
+        .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 700; border-radius: 6px; font-size: 14px; padding: 6px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; }
         .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
         .editable-popup:focus { border-color: #3182ce; }
         
@@ -107,31 +78,27 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ★ 모바일 스마트폰 화면 최적화 (반응형 적용) */
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 20px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 20px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .brand-logo img { max-height: 32px; } 
-            
-            /* 날짜/날씨 크기도 모바일에 맞게 살짝 키움 */
             .weather-widget { padding: 12px; }
             .weather-date { font-size: 14px; }
             .weather-info { font-size: 15px; padding: 6px 14px; }
-            
             .search-box input, .search-box button { font-size: 15px; padding: 12px; }
             .legend-box { padding: 10px; gap: 6px; }
             .legend-item { font-size: 13px; }
-            
-            /* ★ 핵심: 스마트폰에서 마커 글씨 크기를 대폭 키워서 가독성 확보 */
-            .custom-tooltip {
-                font-size: 16.5px;
-                padding: 8px 14px;
-                border-radius: 8px;
-            }
-            .editable-popup {
-                font-size: 17px;
-                padding: 10px;
-            }
+            .custom-tooltip { font-size: 16.5px; padding: 8px 14px; border-radius: 8px; }
+            .editable-popup { font-size: 17px; padding: 10px; }
+        }
+
+        /* ★ 인쇄 전용 CSS (출력할 때 메뉴 숨기고 지도만 꽉 차게) */
+        @media print {
+            @page { size: landscape; margin: 0; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+            .info-panel, .info-toggle-btn { display: none !important; }
+            .leaflet-control-container { display: none !important; }
+            #map { position: absolute; top: 0; left: 0; width: 100vw !important; height: 100vh !important; }
         }
     </style>
 </head>
@@ -145,14 +112,13 @@
         <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
         <h3 class="panel-title">시설물 종합 관리 맵</h3>
         
-        <!-- 날짜 및 실시간 날씨 위젯 -->
         <div class="weather-widget">
             <span class="weather-date" id="current-date">📅 날짜 로딩중</span>
             <span class="weather-info" id="current-weather">🌤️ 확인중</span>
         </div>
 
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="시설물/지점명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
+            <input type="text" id="searchInput" placeholder="시설물명 검색..." onkeypress="if(event.keyCode==13) searchMarker()">
             <button onclick="searchMarker()">찾기</button>
         </div>
 
@@ -166,13 +132,17 @@
             <li><b>위치 이동:</b> 마커 누르고 [잠금해제] 버튼 클릭</li>
             <li><b>지점 추가:</b> 지도 빈 곳을 터치 (또는 클릭)</li>
             <li><b>내용 수정:</b> 마커 터치 후 텍스트 바로 수정</li>
-            <li class="text-danger">마커 삭제: 마커를 길게 누르기 (우클릭)</li>
+            <li style="color:#e53e3e;"><b>마커 삭제:</b> 마커를 길게 누르기 (우클릭)</li>
         </ul>
+
+        <!-- ★ 보고서용 엑셀 다운로드 및 인쇄 버튼 -->
+        <div class="action-btns">
+            <button class="action-btn btn-excel" onclick="downloadExcel()">📊 엑셀 저장</button>
+            <button class="action-btn btn-print" onclick="window.print()">🖨️ 맵 인쇄</button>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 날짜 및 실시간 날씨 업데이트 함수
         function updateDateAndWeather() {
             var now = new Date();
             var days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -186,9 +156,7 @@
                 .then(function(data) {
                     var temp = Math.round(data.current.temperature_2m);
                     var code = data.current.weather_code;
-                    var wText = "맑음";
-                    var icon = "☀️";
-
+                    var wText = "맑음"; var icon = "☀️";
                     if (code === 1 || code === 2) { wText = "구름조금"; icon = "🌤️"; }
                     else if (code === 3) { wText = "흐림"; icon = "☁️"; }
                     else if (code >= 45 && code <= 48) { wText = "안개"; icon = "🌫️"; }
@@ -205,7 +173,6 @@
         }
 
         window.currentOtterMarker = null;
-
         var ACCESS_PASSWORD = "pine@2026!"; 
         var ADMIN_PASSWORD = "1122";  
 
@@ -255,6 +222,59 @@
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
+            // ★ 엑셀 다운로드 함수 (색상별 정렬 기능 포함)
+            window.downloadExcel = function() {
+                var keys = Object.keys(markerLayers);
+                if(keys.length === 0) {
+                    alert("저장된 시설물 마커가 없습니다.");
+                    return;
+                }
+
+                // 1. 데이터 분류 및 정렬 준비 (위험도 순서: 빨강 -> 주황 -> 파랑 -> 초록)
+                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료' };
+                var colorPriority = { 'red': 1, 'orange': 2, 'blue': 3, 'green': 4 };
+                var exportList = [];
+
+                keys.forEach(function(key) {
+                    var marker = markerLayers[key];
+                    var text = marker.getTooltip().getContent() || "";
+                    var color = marker.customColor || 'blue'; // 마커 색상 속성
+
+                    exportList.push({
+                        status: colorNameMap[color],
+                        name: text,
+                        priority: colorPriority[color]
+                    });
+                });
+
+                // 2. 위험도(우선순위) 순으로 데이터 정렬
+                exportList.sort(function(a, b) {
+                    return a.priority - b.priority;
+                });
+
+                // 3. 엑셀 데이터 배열 만들기 (출력 시 보기 좋게 빈칸 추가)
+                var excelData = [];
+                excelData.push(["상태 분류", "시설물 / 지점명", "비고 (현장 조치사항 기입)"]); // 헤더
+
+                exportList.forEach(function(item) {
+                    excelData.push([item.status, item.name, ""]);
+                });
+
+                // 4. 엑셀 파일 생성
+                var wb = XLSX.utils.book_new();
+                var ws = XLSX.utils.aoa_to_sheet(excelData);
+
+                // 열 너비(Column Width) 넓게 설정
+                ws['!cols'] = [ {wch: 15}, {wch: 40}, {wch: 35} ];
+
+                XLSX.utils.book_append_sheet(wb, ws, "시설물 현황");
+
+                // 5. 다운로드 실행 (파일명에 오늘 날짜 추가)
+                var today = new Date();
+                var dateTitle = today.getFullYear() + "년" + (today.getMonth()+1) + "월" + today.getDate() + "일";
+                XLSX.writeFile(wb, "양지파인리조트_관리현황_" + dateTitle + ".xlsx");
+            };
+
             window.togglePanel = function() {
                 var panel = document.getElementById('info-panel');
                 var toggleBtn = document.getElementById('info-toggle');
@@ -289,6 +309,7 @@
                 if(markerLayers[dbKey]) return; 
 
                 var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
+                marker.customColor = colorType; // ★ 엑셀 추출을 위해 현재 색상 저장
                 marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip' });
 
                 var popupContent = document.createElement('div');
@@ -326,6 +347,7 @@
                     
                     btn.onclick = function() {
                         marker.setIcon(icons[c]);
+                        marker.customColor = c; // 색상 업데이트
                         if(database) database.ref('markers/' + dbKey).update({ color: c });
                     };
                     colorDiv.appendChild(btn);
@@ -384,7 +406,6 @@
                                     <svg width="180" height="130" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
                                       <ellipse cx="80" cy="100" rx="70" ry="15" fill="#60a5fa" opacity="0.6"/>
                                       <ellipse cx="80" cy="105" rx="50" ry="10" fill="#3b82f6" opacity="0.4"/>
-                                      
                                       <g transform="translate(-15, 0)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#6B4226"/> 
                                           <circle cx="65" cy="50" r="7" fill="#6B4226"/> 
@@ -401,7 +422,6 @@
                                           <ellipse cx="87" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/>
                                           <path d="M 85 80 Q 100 85 105 80" fill="none" stroke="#6B4226" stroke-width="6" stroke-linecap="round"/>
                                       </g>
-
                                       <g transform="translate(25, 5)">
                                           <path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#8B5A2B"/> 
                                           <circle cx="65" cy="50" r="7" fill="#8B5A2B"/>
@@ -416,20 +436,13 @@
                                           <circle cx="87" cy="58" r="3" fill="#FF69B4" opacity="0.6"/>
                                           <path d="M 70 80 Q 55 85 50 80" fill="none" stroke="#8B5A2B" stroke-width="5" stroke-linecap="round"/>
                                       </g>
-                                      
                                       <path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff4d4d" transform="translate(-10, -15) scale(0.7)"/>
                                       <path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff6b6b" transform="translate(20, -25) scale(0.5)"/>
                                     </svg>
                                 </div>
                             `;
                             
-                            var otterIcon = L.divIcon({
-                                html: otterHtml,
-                                className: 'otter-div-icon',
-                                iconSize: [180, 200],
-                                iconAnchor: [90, 240]
-                            });
-                            
+                            var otterIcon = L.divIcon({ html: otterHtml, className: 'otter-div-icon', iconSize: [180, 200], iconAnchor: [90, 240] });
                             window.currentOtterMarker = L.marker(marker.getLatLng(), {icon: otterIcon, zIndexOffset: 9999}).addTo(map);
                             window.currentOtterMarker.targetId = dbKey;
                             
@@ -480,7 +493,9 @@
                         if (marker.getTooltip().getContent() !== data.text) {
                             marker.setTooltipContent(data.text); 
                         }
-                        marker.setIcon(icons[data.color]); 
+                        marker.setIcon(icons[data.color]);
+                        marker.customColor = data.color; // ★ 색상 변경 시 엑셀 데이터용 속성도 즉시 업데이트 
+                        
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) {
                             activeTextDiv.innerText = data.text;
