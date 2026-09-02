@@ -10,11 +10,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
     
-    <!-- 맵 라이브러리 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- 파이어베이스 및 엑셀 라이브러리 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -63,29 +60,33 @@
         .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
         .editable-popup:focus { border-color: #3182ce; }
         
-        /* ★ 음성 인식 마커 추가 버튼 (화면 하단 플로팅 버튼) */
-        .voice-fab {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000;
-            background-color: #8b5cf6; /* 보라색 계열로 눈에 띄게 */
-            color: white; padding: 14px 24px; border-radius: 30px; font-size: 16px; font-weight: 800;
-            border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
-        }
+        .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 14px 24px; border-radius: 30px; font-size: 16px; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         .voice-fab:hover { background-color: #7c3aed; transform: translateX(-50%) scale(1.05); }
 
-        /* 수달 팝업 */
-        .otter-div-icon { background: transparent; border: none; }
-        .otter-pop-container { display: flex; flex-direction: column; align-items: center; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, bobbing 2s infinite ease-in-out 0.5s; transform-origin: bottom center; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); cursor: pointer; }
-        @keyframes popUp { 0% { transform: scale(0) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-        @keyframes bobbing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        .otter-speech-bubble { background: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; font-weight: 800; color: #2d3748; text-align: center; border: 2px solid #3b82f6; margin-bottom: -10px; position: relative; z-index: 2; line-height: 1.4; }
-        .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
-        .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
+        /* ★ 수리 일지 모달창 CSS (화면 정중앙에 예쁘게 뜨도록 설계) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
+        .log-modal { background: white; width: 90%; max-width: 400px; border-radius: 12px; display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .log-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .log-title { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0; }
+        .log-close { background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer; }
+        .log-body { padding: 15px; overflow-y: auto; flex: 1; background: #f1f5f9; }
+        .log-list { display: flex; flex-direction: column; gap: 10px; }
+        .log-item { background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .log-date { font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+        .log-text { font-size: 14px; color: #334155; line-height: 1.5; word-break: break-word; }
+        .log-empty { text-align: center; color: #94a3b8; font-size: 14px; padding: 20px 0; }
+        .log-footer { padding: 15px; background: white; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+        .log-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; resize: none; font-family: inherit; box-sizing: border-box; outline: none; }
+        .log-input:focus { border-color: #3b82f6; }
+        .log-submit-btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        
+        .btn-log-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .btn-log-open:hover { background: #bae6fd; }
 
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 90px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
             .info-toggle-btn { top: auto; bottom: 90px; right: 10px; padding: 12px 18px; border-radius: 30px; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-            .voice-fab { bottom: 20px; font-size: 15px; padding: 14px 20px; width: 85%; justify-content: center; } /* 모바일에서는 가로로 넓게 */
+            .voice-fab { bottom: 20px; font-size: 15px; padding: 14px 20px; width: 85%; justify-content: center; } 
             .brand-logo img { max-height: 32px; } 
             .weather-widget { padding: 12px; } .weather-date { font-size: 14px; } .weather-info { font-size: 15px; padding: 6px 14px; }
             .search-box input, .search-box button { font-size: 15px; padding: 12px; }
@@ -94,7 +95,6 @@
             .editable-popup { font-size: 17px; padding: 10px; }
         }
 
-        /* 인쇄 모드 시 숨김 처리 */
         @media print {
             @page { size: landscape; margin: 0; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
@@ -108,11 +108,7 @@
     
     <div id="map"></div>
     
-    <!-- ★ 음성 인식 마커 추가 플로팅 버튼 -->
-    <button id="voice-btn" class="voice-fab" onclick="startVoiceMarker()">
-        🎙️ 현위치 음성 마킹
-    </button>
-
+    <button id="voice-btn" class="voice-fab" onclick="startVoiceMarker()">🎙️ 현위치 음성 마킹</button>
     <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️ 메뉴 열기</div>
 
     <div id="info-panel" class="info-panel">
@@ -142,14 +138,32 @@
         </div>
         <ul class="guide-list">
             <li><b>위치 이동:</b> 마커 누르고 [잠금해제] 버튼 클릭</li>
-            <li><b>지점 추가:</b> 지도 빈 곳 터치 / 하단 음성 버튼</li>
-            <li><b>내용 수정:</b> 마커 터치 후 텍스트 바로 수정</li>
+            <li><b>수리 내역:</b> 마커 클릭 후 [📝점검/수리 일지] 클릭</li>
             <li style="color:#e53e3e;"><b>마커 삭제:</b> 마커를 길게 누르기 (우클릭)</li>
         </ul>
 
         <div class="action-btns">
             <button class="action-btn btn-excel" onclick="downloadExcel()">📊 엑셀 저장</button>
             <button class="action-btn btn-print" onclick="window.print()">🖨️ 맵 인쇄</button>
+        </div>
+    </div>
+
+    <!-- ★ 수리 이력 모달(팝업) 창 HTML -->
+    <div id="log-modal" class="modal-overlay">
+        <div class="log-modal">
+            <div class="log-header">
+                <h4 class="log-title" id="log-title">점검/수리 일지</h4>
+                <button class="log-close" onclick="closeLogModal()">✖</button>
+            </div>
+            <div class="log-body">
+                <div class="log-list" id="log-list">
+                    <!-- 일지 목록이 여기에 동적으로 들어갑니다 -->
+                </div>
+            </div>
+            <div class="log-footer">
+                <textarea id="log-input-text" class="log-input" rows="2" placeholder="점검 내용, 수리 내역, 교체 부품 등을 간략히 입력하세요."></textarea>
+                <button class="log-submit-btn" onclick="submitLog()">기록 추가하기</button>
+            </div>
         </div>
     </div>
 
@@ -161,26 +175,16 @@
             document.getElementById('current-date').innerText = "📅 " + dateStr;
 
             var weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=37.2115&longitude=127.2940&current=temperature_2m,weather_code&timezone=Asia%2FSeoul";
-            
-            fetch(weatherUrl)
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    var temp = Math.round(data.current.temperature_2m);
-                    var code = data.current.weather_code;
-                    var wText = "맑음"; var icon = "☀️";
-                    if (code === 1 || code === 2) { wText = "구름조금"; icon = "🌤️"; }
-                    else if (code === 3) { wText = "흐림"; icon = "☁️"; }
-                    else if (code >= 45 && code <= 48) { wText = "안개"; icon = "🌫️"; }
-                    else if (code >= 51 && code <= 67) { wText = "비"; icon = "🌧️"; }
-                    else if (code >= 71 && code <= 77) { wText = "눈"; icon = "❄️"; }
-                    else if (code >= 80 && code <= 82) { wText = "소나기"; icon = "🌦️"; }
-                    else if (code >= 95) { wText = "뇌우"; icon = "⚡"; }
-
-                    document.getElementById('current-weather').innerHTML = icon + " " + wText + " <span>" + temp + "℃</span>";
-                })
-                .catch(function(err) {
-                    document.getElementById('current-weather').innerText = "🌤️ 확인불가";
-                });
+            fetch(weatherUrl).then(res => res.json()).then(data => {
+                var temp = Math.round(data.current.temperature_2m);
+                var code = data.current.weather_code;
+                var wText = "맑음"; var icon = "☀️";
+                if (code <= 2) { wText = "구름조금"; icon = "🌤️"; } else if (code === 3) { wText = "흐림"; icon = "☁️"; }
+                else if (code >= 45 && code <= 48) { wText = "안개"; icon = "🌫️"; } else if (code >= 51 && code <= 67) { wText = "비"; icon = "🌧️"; }
+                else if (code >= 71 && code <= 77) { wText = "눈"; icon = "❄️"; } else if (code >= 80 && code <= 82) { wText = "소나기"; icon = "🌦️"; }
+                else if (code >= 95) { wText = "뇌우"; icon = "⚡"; }
+                document.getElementById('current-weather').innerHTML = icon + " " + wText + " <span>" + temp + "℃</span>";
+            }).catch(() => { document.getElementById('current-weather').innerText = "🌤️ 확인불가"; });
         }
 
         window.currentOtterMarker = null;
@@ -190,11 +194,7 @@
         var userInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
 
         if (userInput !== ACCESS_PASSWORD) {
-            document.body.innerHTML = `
-                <div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'>
-                    <h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2>
-                    <p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p>
-                </div>`;
+            document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p></div>`;
         } 
         else {
             updateDateAndWeather(); 
@@ -208,100 +208,43 @@
                 messagingSenderId: "304287623721",
                 appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
             };
-            
-            try {
-                firebase.initializeApp(firebaseConfig);
-                var database = firebase.database();
-            } catch(e) {
-                console.error("Firebase 연결 실패: ", e);
-            }
+            try { firebase.initializeApp(firebaseConfig); var database = firebase.database(); } catch(e) {}
 
             var map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
-            
-            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', {
-                maxNativeZoom: 21, maxZoom: 24
-            }).addTo(map);
+            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', { maxNativeZoom: 21, maxZoom: 24 }).addTo(map);
 
-            // ★ 음성 인식 및 현위치 마킹 기능 함수
             window.startVoiceMarker = function() {
-                // 브라우저 지원 여부 확인
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    alert("현재 브라우저는 음성 인식을 지원하지 않습니다. (구글 크롬, 사파리를 사용해주세요)");
-                    return;
-                }
-
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("현재 브라우저는 음성 인식을 지원하지 않습니다."); return; }
                 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                var recognition = new SpeechRecognition();
-                recognition.lang = 'ko-KR'; // 한국어 설정
-                recognition.interimResults = false;
-                
+                var recognition = new SpeechRecognition(); recognition.lang = 'ko-KR'; recognition.interimResults = false;
                 var voiceBtn = document.getElementById('voice-btn');
                 
-                // GPS가 지원되는지 확인
                 if ("geolocation" in navigator) {
-                    voiceBtn.innerHTML = "⏳ GPS 위치 찾는 중...";
-                    voiceBtn.style.backgroundColor = "#f59e0b"; // 대기중 주황색
-                    
-                    // 1. 현재 서 있는 GPS 좌표 가져오기 (정밀도 높음 설정)
+                    voiceBtn.innerHTML = "⏳ GPS 위치 찾는 중..."; voiceBtn.style.backgroundColor = "#f59e0b"; 
                     navigator.geolocation.getCurrentPosition(function(position) {
-                        var lat = position.coords.latitude;
-                        var lng = position.coords.longitude;
-                        
-                        // 2. 위치를 찾으면 바로 마이크 켜기
-                        voiceBtn.innerHTML = "🎙️ 말씀하세요! (듣는 중...)";
-                        voiceBtn.style.backgroundColor = "#ef4444"; // 녹음중 빨간색
-                        
+                        var lat = position.coords.latitude; var lng = position.coords.longitude;
+                        voiceBtn.innerHTML = "🎙️ 말씀하세요! (듣는 중...)"; voiceBtn.style.backgroundColor = "#ef4444"; 
                         recognition.start();
-
-                        // 3. 목소리 인식 결과 처리
                         recognition.onresult = function(event) {
                             var spokenText = event.results[0][0].transcript;
-                            
-                            // 이름에 가로등, 조명이 들어가면 스마트 가로등 모드로 자동 세팅
-                            var initialColor = 'blue';
-                            if (spokenText.includes('가로등') || spokenText.includes('조명')) {
-                                initialColor = 'lamp-off'; 
-                            }
-
-                            // 파이어베이스에 저장!
+                            var initialColor = (spokenText.includes('가로등') || spokenText.includes('조명')) ? 'lamp-off' : 'blue';
                             if(database) {
-                                var newMarkerRef = database.ref('markers').push();
-                                newMarkerRef.set({ lat: lat, lng: lng, text: spokenText, color: initialColor })
-                                .then(function() {
-                                    alert("✅ [성공] 현위치에 마커 추가됨: " + spokenText);
-                                    map.setView([lat, lng], 20); // 찍힌 마커로 지도 이동
+                                database.ref('markers').push().set({ lat: lat, lng: lng, text: spokenText, color: initialColor }).then(function() {
+                                    alert("✅ 현위치에 마커 추가됨: " + spokenText); map.setView([lat, lng], 20);
                                 });
                             }
                             resetVoiceBtn();
                         };
-
-                        recognition.onerror = function(event) {
-                            alert("음성 인식이 취소되었거나 오류가 발생했습니다.");
-                            resetVoiceBtn();
-                        };
-                        
-                        recognition.onend = function() {
-                            resetVoiceBtn();
-                        };
-                        
-                    }, function(error) {
-                        alert("GPS 권한이 거부되었거나 위치를 찾을 수 없습니다. (스마트폰의 위치/GPS 기능을 켜주세요)");
-                        resetVoiceBtn();
-                    }, { enableHighAccuracy: true }); 
-                } else {
-                    alert("GPS를 지원하지 않는 기기입니다.");
+                        recognition.onerror = function() { resetVoiceBtn(); };
+                        recognition.onend = function() { resetVoiceBtn(); };
+                    }, function() { alert("GPS 권한을 허용해주세요."); resetVoiceBtn(); }, { enableHighAccuracy: true }); 
                 }
-
-                function resetVoiceBtn() {
-                    voiceBtn.innerHTML = "🎙️ 현위치 음성 마킹";
-                    voiceBtn.style.backgroundColor = "#8b5cf6"; // 원래 보라색 복구
-                }
+                function resetVoiceBtn() { voiceBtn.innerHTML = "🎙️ 현위치 음성 마킹"; voiceBtn.style.backgroundColor = "#8b5cf6"; }
             };
 
             var iconOptions = { iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] };
-            
-            var lampOffIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="14" width="4" height="26" rx="1" fill="#64748b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#475569"/><circle cx="15" cy="14" r="5" fill="#cbd5e1"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
-            var lampOnIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/><stop offset="100%" stop-color="#fef08a" stop-opacity="0"/></radialGradient></defs><circle cx="15" cy="14" r="15" fill="url(#glow)"/><rect x="13" y="14" width="4" height="26" rx="1" fill="#1e293b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#0f172a"/><circle cx="15" cy="14" r="5" fill="#fde047" filter="drop-shadow(0 0 4px #eab308)"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
+            var lampOffIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40"><rect x="13" y="14" width="4" height="26" rx="1" fill="#64748b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#475569"/><circle cx="15" cy="14" r="5" fill="#cbd5e1"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
+            var lampOnIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40"><defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/><stop offset="100%" stop-color="#fef08a" stop-opacity="0"/></radialGradient></defs><circle cx="15" cy="14" r="15" fill="url(#glow)"/><rect x="13" y="14" width="4" height="26" rx="1" fill="#1e293b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#0f172a"/><circle cx="15" cy="14" r="5" fill="#fde047" filter="drop-shadow(0 0 4px #eab308)"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
 
             var icons = {
                 'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
@@ -314,73 +257,151 @@
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
+            // ★ 일지 관리를 위한 전역 변수
+            window.currentLogDbKey = null;
+
             window.downloadExcel = function() {
                 var keys = Object.keys(markerLayers);
-                if(keys.length === 0) { alert("저장된 시설물 마커가 없습니다."); return; }
+                if(keys.length === 0) { alert("저장된 시설물이 없습니다."); return; }
 
-                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료', 'lamp-on': '💡 스마트 가로등 (켜짐)', 'lamp-off': '⚫ 스마트 가로등 (꺼짐)' };
+                // --- [시트 1] 현재 시설물 상태 요약 ---
+                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료', 'lamp-on': '💡 가로등(ON)', 'lamp-off': '⚫ 가로등(OFF)' };
                 var colorPriority = { 'red': 1, 'orange': 2, 'lamp-on': 3, 'lamp-off': 4, 'blue': 5, 'green': 6 }; 
                 var exportList = [];
+                var logExportList = []; // 엑셀 두번째 시트용
 
                 keys.forEach(function(key) {
                     var marker = markerLayers[key];
                     var text = marker.getTooltip().getContent() || "";
                     var color = marker.customColor || 'blue'; 
                     exportList.push({ status: colorNameMap[color], name: text, priority: colorPriority[color] });
+                    
+                    // 수리 내역(logs) 데이터 추출
+                    if (marker.logs) {
+                        var logKeys = Object.keys(marker.logs);
+                        // 최신 날짜순 정렬
+                        logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
+                        logKeys.forEach(function(lk) {
+                            logExportList.push([text, marker.logs[lk].date, marker.logs[lk].text]);
+                        });
+                    }
                 });
                 exportList.sort(function(a, b) { return a.priority - b.priority; });
 
-                var excelData = [];
-                excelData.push(["상태 분류", "시설물 / 지점명", "비고 (현장 조치사항 기입)"]); 
-                exportList.forEach(function(item) { excelData.push([item.status, item.name, ""]); });
+                var excelData1 = [["상태 분류", "시설물 / 지점명", "비고"]]; 
+                exportList.forEach(function(item) { excelData1.push([item.status, item.name, ""]); });
+
+                // --- [시트 2] 전체 수리 점검 이력 ---
+                var excelData2 = [["시설물 / 지점명", "점검/수리 일시", "점검/수리 상세 내역"]];
+                logExportList.forEach(function(item) { excelData2.push(item); });
+                if (logExportList.length === 0) { excelData2.push(["-", "-", "기록된 점검/수리 내역이 없습니다."]); }
 
                 var wb = XLSX.utils.book_new();
-                var ws = XLSX.utils.aoa_to_sheet(excelData);
-                ws['!cols'] = [ {wch: 22}, {wch: 40}, {wch: 35} ];
-                XLSX.utils.book_append_sheet(wb, ws, "시설물 현황");
+                
+                // 시트 1 추가
+                var ws1 = XLSX.utils.aoa_to_sheet(excelData1);
+                ws1['!cols'] = [ {wch: 18}, {wch: 35}, {wch: 30} ];
+                XLSX.utils.book_append_sheet(wb, ws1, "현황 요약");
+
+                // 시트 2 추가 (수리이력 대장)
+                var ws2 = XLSX.utils.aoa_to_sheet(excelData2);
+                ws2['!cols'] = [ {wch: 30}, {wch: 22}, {wch: 50} ];
+                XLSX.utils.book_append_sheet(wb, ws2, "점검 및 수리 대장");
 
                 var today = new Date();
                 var dateTitle = today.getFullYear() + "년" + (today.getMonth()+1) + "월" + today.getDate() + "일";
-                XLSX.writeFile(wb, "양지파인리조트_관리현황_" + dateTitle + ".xlsx");
+                XLSX.writeFile(wb, "양지파인_시설현황및수리대장_" + dateTitle + ".xlsx");
             };
 
             window.togglePanel = function() {
-                var panel = document.getElementById('info-panel');
-                var toggleBtn = document.getElementById('info-toggle');
-                if (panel.style.display === 'none') { panel.style.display = 'block'; toggleBtn.style.display = 'none'; } 
-                else { panel.style.display = 'none'; toggleBtn.style.display = 'flex'; }
+                var panel = document.getElementById('info-panel'); var toggleBtn = document.getElementById('info-toggle');
+                if (panel.style.display === 'none') { panel.style.display = 'block'; toggleBtn.style.display = 'none'; } else { panel.style.display = 'none'; toggleBtn.style.display = 'flex'; }
             };
 
             window.searchMarker = function() {
                 var keyword = document.getElementById('searchInput').value.trim();
                 if (!keyword) { alert("검색할 이름을 입력해주세요."); return; }
-                var found = false;
                 for (var key in markerLayers) {
-                    var marker = markerLayers[key];
-                    var markerText = marker.getTooltip().getContent() || "";
-                    if (markerText.includes(keyword)) {
-                        map.setView(marker.getLatLng(), 20); marker.openPopup(); found = true;
-                        if(window.innerWidth <= 600) { togglePanel(); } break; 
+                    if ((markerLayers[key].getTooltip().getContent() || "").includes(keyword)) {
+                        map.setView(markerLayers[key].getLatLng(), 20); markerLayers[key].openPopup();
+                        if(window.innerWidth <= 600) togglePanel(); return; 
                     }
                 }
-                if (!found) { alert("'" + keyword + "' (이)라는 지점을 찾을 수 없습니다."); }
+                alert("'" + keyword + "' 지점을 찾을 수 없습니다.");
             };
+
+            // ★ 일지 팝업(모달) 제어 함수들
+            window.openLogModal = function(dbKey, facilityName) {
+                window.currentLogDbKey = dbKey;
+                document.getElementById('log-title').innerText = "📝 " + facilityName + " 일지";
+                document.getElementById('log-modal').style.display = 'flex';
+                document.getElementById('log-input-text').value = ""; // 입력창 초기화
+                renderLogList(dbKey);
+            };
+
+            window.closeLogModal = function() {
+                document.getElementById('log-modal').style.display = 'none';
+                window.currentLogDbKey = null;
+            };
+
+            window.submitLog = function() {
+                if (!window.currentLogDbKey) return;
+                var text = document.getElementById('log-input-text').value.trim();
+                if (!text) { alert("수리/점검 내용을 입력해주세요."); return; }
+
+                var now = new Date();
+                var dateString = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,'0') + "-" + String(now.getDate()).padStart(2,'0') + " " + String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
+
+                if (database) {
+                    database.ref('markers/' + window.currentLogDbKey + '/logs').push({
+                        date: dateString,
+                        text: text
+                    }).then(function() {
+                        document.getElementById('log-input-text').value = "";
+                        // 상태를 주황색(유지보수)이나 초록색(완료)으로 자동으로 바꾸지 않음. (작업자가 상황에 맞게 밖에서 수동 변경하도록 함)
+                    });
+                }
+            };
+
+            function renderLogList(dbKey) {
+                var listDiv = document.getElementById('log-list');
+                listDiv.innerHTML = "";
+                var marker = markerLayers[dbKey];
+
+                if (!marker || !marker.logs) {
+                    listDiv.innerHTML = `<div class="log-empty">아직 기록된 점검/수리 이력이 없습니다.</div>`;
+                    return;
+                }
+
+                var logKeys = Object.keys(marker.logs);
+                // 최신글이 맨 위에 오도록 정렬 (내림차순)
+                logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
+
+                logKeys.forEach(function(lk) {
+                    var logData = marker.logs[lk];
+                    var itemHTML = `
+                        <div class="log-item">
+                            <div class="log-date">${logData.date}</div>
+                            <div class="log-text">${logData.text.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `;
+                    listDiv.insertAdjacentHTML('beforeend', itemHTML);
+                });
+            }
 
             function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
                 if(markerLayers[dbKey]) return; 
 
                 var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
                 marker.customColor = colorType; 
+                marker.logs = null; // 로그 데이터 저장용 속성 추가
+                
                 var tooltipOffset = colorType.startsWith('lamp') ? [15, -20] : [1, -34];
                 marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip', offset: tooltipOffset });
 
                 var popupContent = document.createElement('div');
                 var textDiv = document.createElement('div');
-                textDiv.id = 'popup-text-' + dbKey; 
-                textDiv.className = 'editable-popup';
-                textDiv.contentEditable = true;
-                textDiv.innerText = nameText;
-                
+                textDiv.id = 'popup-text-' + dbKey; textDiv.className = 'editable-popup'; textDiv.contentEditable = true; textDiv.innerText = nameText;
                 textDiv.addEventListener('input', function() {
                     marker.setTooltipContent(this.innerText);
                     if(database) database.ref('markers/' + dbKey).update({ text: this.innerText });
@@ -389,39 +410,25 @@
                 
                 var colorDiv = document.createElement('div');
                 colorDiv.style.marginTop = '12px'; colorDiv.style.textAlign = 'center';
-                var isLamp = colorType.startsWith('lamp');
 
-                if (isLamp) {
-                    var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기 (ON)";
-                    onBtn.style.padding = "8px 12px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
-                    var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기 (OFF)";
-                    offBtn.style.padding = "8px 12px"; offBtn.style.margin = "0 4px"; offBtn.style.borderRadius = "6px"; offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
+                if (colorType.startsWith('lamp')) {
+                    var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기(ON)";
+                    onBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
+                    var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
+                    offBtn.style.padding = "8px 10px"; offBtn.style.margin = "0 4px"; offBtn.style.borderRadius = "6px"; offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
 
-                    onBtn.onclick = function() {
-                        marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on';
-                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' });
-                    };
-                    offBtn.onclick = function() {
-                        marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off';
-                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' });
-                    };
+                    onBtn.onclick = function() { marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' }); };
+                    offBtn.onclick = function() { marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off'; if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' }); };
                     colorDiv.appendChild(onBtn); colorDiv.appendChild(offBtn);
                 } 
                 else {
                     var colors = ['blue', 'red', 'orange', 'green'];
                     var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
                     colors.forEach(function(c) {
-                        var btn = document.createElement('button');
-                        btn.style.backgroundColor = colorHex[c];
-                        btn.style.border = '2px solid transparent'; btn.style.width = '28px'; btn.style.height = '28px';
-                        btn.style.borderRadius = '50%'; btn.style.margin = '0 6px'; btn.style.cursor = 'pointer';
-                        btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.15)'; btn.style.transition = 'transform 0.1s';
-                        btn.onmousedown = function() { btn.style.transform = 'scale(0.9)'; }
-                        btn.onmouseup = function() { btn.style.transform = 'scale(1)'; }
-                        btn.onclick = function() {
-                            marker.setIcon(icons[c]); marker.customColor = c; 
-                            if(database) database.ref('markers/' + dbKey).update({ color: c });
-                        };
+                        var btn = document.createElement('button'); btn.style.backgroundColor = colorHex[c];
+                        btn.style.border = '2px solid transparent'; btn.style.width = '26px'; btn.style.height = '26px';
+                        btn.style.borderRadius = '50%'; btn.style.margin = '0 4px'; btn.style.cursor = 'pointer';
+                        btn.onclick = function() { marker.setIcon(icons[c]); marker.customColor = c; if(database) database.ref('markers/' + dbKey).update({ color: c }); };
                         colorDiv.appendChild(btn);
                     });
                 }
@@ -430,49 +437,34 @@
                 var actionDiv = document.createElement('div');
                 actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
                 
-                var moveBtn = document.createElement('button'); moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
-                moveBtn.style.padding = "10px"; moveBtn.style.fontSize = "14px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%"; moveBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                // ★ 점검/수리 일지 버튼 추가 (가장 잘 보이게)
+                var logBtn = document.createElement('button');
+                logBtn.className = 'btn-log-open';
+                logBtn.innerText = "📝 점검 및 수리 일지 보기";
+                logBtn.onclick = function() { openLogModal(dbKey, marker.getTooltip().getContent()); marker.closePopup(); };
                 
+                var moveBtn = document.createElement('button'); moveBtn.innerText = "🔒 위치 이동 (잠금해제)";
+                moveBtn.style.padding = "8px"; moveBtn.style.marginTop = "8px"; moveBtn.style.fontSize = "13px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%";
                 moveBtn.onclick = function() {
                     var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:");
-                    if (inputPwd === ADMIN_PASSWORD) {
-                        marker.dragging.enable(); marker.closePopup();      
-                        alert("✅ 잠금이 해제되었습니다.\n원하는 위치로 마커를 드래그 하세요.");
-                    } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
+                    if (inputPwd === ADMIN_PASSWORD) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } else if (inputPwd !== null) { alert("비밀번호 불일치."); }
                 };
-                actionDiv.appendChild(moveBtn); popupContent.appendChild(actionDiv);
+                
+                actionDiv.appendChild(logBtn);
+                actionDiv.appendChild(moveBtn); 
+                popupContent.appendChild(actionDiv);
                 
                 marker.bindPopup(popupContent);
 
-                marker.on('click', function(e) {
-                    var currentText = marker.getTooltip().getContent() || "";
-                    if (currentText.includes("분수대") || currentText.includes("저수지") || currentText.includes("수달")) {
-                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === dbKey) {
-                            map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null;
-                        } 
-                        else {
-                            if (window.currentOtterMarker) { map.removeLayer(window.currentOtterMarker); }
-                            var otterHtml = `<div class="otter-pop-container"><div class="otter-speech-bubble">짠! 우리는 금실 좋은<br><b>수달 부부</b>예요 🦦💕</div><svg width="180" height="130" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg"><ellipse cx="80" cy="100" rx="70" ry="15" fill="#60a5fa" opacity="0.6"/><ellipse cx="80" cy="105" rx="50" ry="10" fill="#3b82f6" opacity="0.4"/><g transform="translate(-15, 0)"><path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#6B4226"/><circle cx="65" cy="50" r="7" fill="#6B4226"/><circle cx="90" cy="50" r="7" fill="#6B4226"/><circle cx="77.5" cy="55" r="20" fill="#6B4226"/><ellipse cx="77.5" cy="62" rx="12" ry="8" fill="#D2B48C"/><ellipse cx="77.5" cy="58" rx="4" ry="2.5" fill="#111"/><circle cx="70" cy="52" r="2.5" fill="#111"/><circle cx="85" cy="52" r="2.5" fill="#111"/><circle cx="69" cy="51" r="1" fill="#fff"/><circle cx="84" cy="51" r="1" fill="#fff"/><path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/><ellipse cx="68" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/><ellipse cx="87" cy="60" rx="3" ry="2" fill="#FFB6C1" opacity="0.6"/><path d="M 85 80 Q 100 85 105 80" fill="none" stroke="#6B4226" stroke-width="6" stroke-linecap="round"/></g><g transform="translate(25, 5)"><path d="M 60 100 C 60 50, 95 50, 95 100 Z" fill="#8B5A2B"/><circle cx="65" cy="50" r="7" fill="#8B5A2B"/><circle cx="90" cy="50" r="7" fill="#8B5A2B"/><circle cx="77.5" cy="55" r="19" fill="#8B5A2B"/><ellipse cx="77.5" cy="62" rx="11" ry="7" fill="#E6C280"/><ellipse cx="77.5" cy="58" rx="3.5" ry="2" fill="#111"/><path d="M 67 52 Q 70 49 73 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/><path d="M 82 52 Q 85 49 88 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/><path d="M 74 64 Q 77.5 67 81 64" fill="none" stroke="#111" stroke-width="1.5"/><circle cx="68" cy="58" r="3" fill="#FF69B4" opacity="0.6"/><circle cx="87" cy="58" r="3" fill="#FF69B4" opacity="0.6"/><path d="M 70 80 Q 55 85 50 80" fill="none" stroke="#8B5A2B" stroke-width="5" stroke-linecap="round"/></g><path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff4d4d" transform="translate(-10, -15) scale(0.7)"/><path d="M 75 30 A 6 6 0 0 1 87 30 A 6 6 0 0 1 99 30 Q 99 40 87 50 Q 75 40 75 30 Z" fill="#ff6b6b" transform="translate(20, -25) scale(0.5)"/></svg></div>`;
-                            var otterIcon = L.divIcon({ html: otterHtml, className: 'otter-div-icon', iconSize: [180, 200], iconAnchor: [90, 240] });
-                            window.currentOtterMarker = L.marker(marker.getLatLng(), {icon: otterIcon, zIndexOffset: 9999}).addTo(map);
-                            window.currentOtterMarker.targetId = dbKey;
-                            window.currentOtterMarker.on('click', function() { map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null; });
-                        }
-                    }
-                });
-
                 marker.on('dragend', function(e) {
-                    var pos = marker.getLatLng();
-                    if(database) database.ref('markers/' + dbKey).update({ lat: pos.lat, lng: pos.lng });
-                    marker.dragging.disable(); 
-                    alert("위치가 성공적으로 변경되어 다시 잠금 처리되었습니다.");
+                    if(database) database.ref('markers/' + dbKey).update({ lat: marker.getLatLng().lat, lng: marker.getLatLng().lng });
+                    marker.dragging.disable(); alert("위치 변경 완료.");
                 });
 
                 marker.on('contextmenu', function(e) {
                     var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                    if (inputPwd === ADMIN_PASSWORD) {
-                        if(database) database.ref('markers/' + dbKey).remove(); 
-                    } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
+                    if (inputPwd === ADMIN_PASSWORD) { if(database) database.ref('markers/' + dbKey).remove(); } 
+                    else if (inputPwd !== null) { alert("비밀번호 불일치."); }
                 });
 
                 markersGroup.addLayer(marker);
@@ -485,6 +477,8 @@
                 markersRef.on('child_added', function(snapshot) {
                     var data = snapshot.val();
                     createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
+                    // 초기 로딩 시 로그가 있다면 저장
+                    if(data.logs) { markerLayers[snapshot.key].logs = data.logs; }
                 });
 
                 markersRef.on('child_changed', function(snapshot) {
@@ -492,10 +486,18 @@
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
                         marker.setLatLng([data.lat, data.lng]); 
-                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) { window.currentOtterMarker.setLatLng([data.lat, data.lng]); }
                         if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
                         marker.setIcon(icons[data.color]);
                         marker.customColor = data.color; 
+                        
+                        // ★ 로그 업데이트 
+                        marker.logs = data.logs || null;
+                        
+                        // 만약 이 마커의 일지창(모달)을 띄워놓고 보고 있는 중이라면 실시간으로 화면 갱신
+                        if (window.currentLogDbKey === snapshot.key) {
+                            renderLogList(snapshot.key);
+                        }
+
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) { activeTextDiv.innerText = data.text; }
                     }
@@ -503,22 +505,15 @@
 
                 markersRef.on('child_removed', function(snapshot) {
                     var marker = markerLayers[snapshot.key];
-                    if (marker) {
-                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
-                            map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null;
-                        }
-                        markersGroup.removeLayer(marker); delete markerLayers[snapshot.key];
-                    }
+                    if (marker) { markersGroup.removeLayer(marker); delete markerLayers[snapshot.key]; }
                 });
             }
 
             map.on('click', function(e) {
-                var newName = prompt("추가할 지점의 이름을 적어주세요.\n(💡 꿀팁: 이름에 '가로등'이나 '조명' 단어를 넣으면 스마트 스위치 마커가 됩니다!)");
+                var newName = prompt("지점 이름 입력\n(💡 가로등, 조명 단어 포함 시 스마트 스위치 생성)");
                 if (newName && newName.trim() !== "" && database) {
-                    var initialColor = 'blue'; 
-                    if (newName.includes('가로등') || newName.includes('조명')) { initialColor = 'lamp-off'; }
-                    var newMarkerRef = database.ref('markers').push();
-                    newMarkerRef.set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
+                    var initialColor = (newName.includes('가로등') || newName.includes('조명')) ? 'lamp-off' : 'blue'; 
+                    database.ref('markers').push().set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
                 }
             });
         } 
