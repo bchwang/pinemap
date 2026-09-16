@@ -63,7 +63,6 @@
         .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 14px 24px; border-radius: 30px; font-size: 16px; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         .voice-fab:hover { background-color: #7c3aed; transform: translateX(-50%) scale(1.05); }
 
-        /* ★ 수리 일지 모달창 CSS (화면 정중앙에 예쁘게 뜨도록 설계) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
         .log-modal { background: white; width: 90%; max-width: 400px; border-radius: 12px; display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .log-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
@@ -82,6 +81,18 @@
         
         .btn-log-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .btn-log-open:hover { background: #bae6fd; }
+
+        /* ★ 유스텔 연동 전용 버튼 스타일 */
+        .btn-yustel { background: #f39c12; color: white; border: none; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(243,156,18,0.3); }
+        .btn-yustel:hover { background: #d68910; }
+
+        .otter-div-icon { background: transparent; border: none; }
+        .otter-pop-container { display: flex; flex-direction: column; align-items: center; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, bobbing 2s infinite ease-in-out 0.5s; transform-origin: bottom center; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); cursor: pointer; }
+        @keyframes popUp { 0% { transform: scale(0) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes bobbing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        .otter-speech-bubble { background: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; font-weight: 800; color: #2d3748; text-align: center; border: 2px solid #3b82f6; margin-bottom: -10px; position: relative; z-index: 2; line-height: 1.4; }
+        .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
+        .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
         @media (max-width: 600px) {
             .info-panel { top: auto; bottom: 90px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
@@ -148,7 +159,7 @@
         </div>
     </div>
 
-    <!-- ★ 수리 이력 모달(팝업) 창 HTML -->
+    <!-- 점검/수리 일지 팝업창 -->
     <div id="log-modal" class="modal-overlay">
         <div class="log-modal">
             <div class="log-header">
@@ -156,9 +167,7 @@
                 <button class="log-close" onclick="closeLogModal()">✖</button>
             </div>
             <div class="log-body">
-                <div class="log-list" id="log-list">
-                    <!-- 일지 목록이 여기에 동적으로 들어갑니다 -->
-                </div>
+                <div class="log-list" id="log-list"></div>
             </div>
             <div class="log-footer">
                 <textarea id="log-input-text" class="log-input" rows="2" placeholder="점검 내용, 수리 내역, 교체 부품 등을 간략히 입력하세요."></textarea>
@@ -257,18 +266,16 @@
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
 
-            // ★ 일지 관리를 위한 전역 변수
             window.currentLogDbKey = null;
 
             window.downloadExcel = function() {
                 var keys = Object.keys(markerLayers);
                 if(keys.length === 0) { alert("저장된 시설물이 없습니다."); return; }
 
-                // --- [시트 1] 현재 시설물 상태 요약 ---
                 var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료', 'lamp-on': '💡 가로등(ON)', 'lamp-off': '⚫ 가로등(OFF)' };
                 var colorPriority = { 'red': 1, 'orange': 2, 'lamp-on': 3, 'lamp-off': 4, 'blue': 5, 'green': 6 }; 
                 var exportList = [];
-                var logExportList = []; // 엑셀 두번째 시트용
+                var logExportList = [];
 
                 keys.forEach(function(key) {
                     var marker = markerLayers[key];
@@ -276,10 +283,8 @@
                     var color = marker.customColor || 'blue'; 
                     exportList.push({ status: colorNameMap[color], name: text, priority: colorPriority[color] });
                     
-                    // 수리 내역(logs) 데이터 추출
                     if (marker.logs) {
                         var logKeys = Object.keys(marker.logs);
-                        // 최신 날짜순 정렬
                         logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
                         logKeys.forEach(function(lk) {
                             logExportList.push([text, marker.logs[lk].date, marker.logs[lk].text]);
@@ -291,19 +296,15 @@
                 var excelData1 = [["상태 분류", "시설물 / 지점명", "비고"]]; 
                 exportList.forEach(function(item) { excelData1.push([item.status, item.name, ""]); });
 
-                // --- [시트 2] 전체 수리 점검 이력 ---
                 var excelData2 = [["시설물 / 지점명", "점검/수리 일시", "점검/수리 상세 내역"]];
                 logExportList.forEach(function(item) { excelData2.push(item); });
                 if (logExportList.length === 0) { excelData2.push(["-", "-", "기록된 점검/수리 내역이 없습니다."]); }
 
                 var wb = XLSX.utils.book_new();
-                
-                // 시트 1 추가
                 var ws1 = XLSX.utils.aoa_to_sheet(excelData1);
                 ws1['!cols'] = [ {wch: 18}, {wch: 35}, {wch: 30} ];
                 XLSX.utils.book_append_sheet(wb, ws1, "현황 요약");
 
-                // 시트 2 추가 (수리이력 대장)
                 var ws2 = XLSX.utils.aoa_to_sheet(excelData2);
                 ws2['!cols'] = [ {wch: 30}, {wch: 22}, {wch: 50} ];
                 XLSX.utils.book_append_sheet(wb, ws2, "점검 및 수리 대장");
@@ -330,12 +331,11 @@
                 alert("'" + keyword + "' 지점을 찾을 수 없습니다.");
             };
 
-            // ★ 일지 팝업(모달) 제어 함수들
             window.openLogModal = function(dbKey, facilityName) {
                 window.currentLogDbKey = dbKey;
                 document.getElementById('log-title').innerText = "📝 " + facilityName + " 일지";
                 document.getElementById('log-modal').style.display = 'flex';
-                document.getElementById('log-input-text').value = ""; // 입력창 초기화
+                document.getElementById('log-input-text').value = ""; 
                 renderLogList(dbKey);
             };
 
@@ -358,7 +358,6 @@
                         text: text
                     }).then(function() {
                         document.getElementById('log-input-text').value = "";
-                        // 상태를 주황색(유지보수)이나 초록색(완료)으로 자동으로 바꾸지 않음. (작업자가 상황에 맞게 밖에서 수동 변경하도록 함)
                     });
                 }
             };
@@ -374,7 +373,6 @@
                 }
 
                 var logKeys = Object.keys(marker.logs);
-                // 최신글이 맨 위에 오도록 정렬 (내림차순)
                 logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
 
                 logKeys.forEach(function(lk) {
@@ -394,7 +392,7 @@
 
                 var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
                 marker.customColor = colorType; 
-                marker.logs = null; // 로그 데이터 저장용 속성 추가
+                marker.logs = null; 
                 
                 var tooltipOffset = colorType.startsWith('lamp') ? [15, -20] : [1, -34];
                 marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip', offset: tooltipOffset });
@@ -437,7 +435,6 @@
                 var actionDiv = document.createElement('div');
                 actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
                 
-                // ★ 점검/수리 일지 버튼 추가 (가장 잘 보이게)
                 var logBtn = document.createElement('button');
                 logBtn.className = 'btn-log-open';
                 logBtn.innerText = "📝 점검 및 수리 일지 보기";
@@ -451,6 +448,19 @@
                 };
                 
                 actionDiv.appendChild(logBtn);
+
+                // ★ 오렌지동 또는 그린동일 경우 유스텔 관리 프로그램 버튼 표시
+                if (nameText.includes('오렌지동') || nameText.includes('그린동')) {
+                    var yustelBtn = document.createElement('button');
+                    yustelBtn.className = 'btn-yustel';
+                    yustelBtn.innerText = "🏢 유스텔 관리 프로그램 열기";
+                    yustelBtn.onclick = function() { 
+                        window.open('https://bchwang.github.io/yangji24/', '_blank'); 
+                        marker.closePopup(); 
+                    };
+                    actionDiv.appendChild(yustelBtn);
+                }
+
                 actionDiv.appendChild(moveBtn); 
                 popupContent.appendChild(actionDiv);
                 
@@ -477,7 +487,6 @@
                 markersRef.on('child_added', function(snapshot) {
                     var data = snapshot.val();
                     createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
-                    // 초기 로딩 시 로그가 있다면 저장
                     if(data.logs) { markerLayers[snapshot.key].logs = data.logs; }
                 });
 
@@ -486,14 +495,20 @@
                     var marker = markerLayers[snapshot.key];
                     if (marker) {
                         marker.setLatLng([data.lat, data.lng]); 
-                        if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
+                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
+                            window.currentOtterMarker.setLatLng([data.lat, data.lng]);
+                        }
+                        if (marker.getTooltip().getContent() !== data.text) { 
+                            marker.setTooltipContent(data.text); 
+                            
+                            // 이름이 변경될 경우 팝업 버튼도 다시 그리도록(유스텔 판별을 위해) 처리
+                            // 편의를 위해 페이지 리로드 유도나 간단한 경고창
+                            // (여기서는 동적으로 DOM을 재생성하는 대신 안내로 대체)
+                        }
                         marker.setIcon(icons[data.color]);
                         marker.customColor = data.color; 
                         
-                        // ★ 로그 업데이트 
                         marker.logs = data.logs || null;
-                        
-                        // 만약 이 마커의 일지창(모달)을 띄워놓고 보고 있는 중이라면 실시간으로 화면 갱신
                         if (window.currentLogDbKey === snapshot.key) {
                             renderLogList(snapshot.key);
                         }
@@ -505,12 +520,17 @@
 
                 markersRef.on('child_removed', function(snapshot) {
                     var marker = markerLayers[snapshot.key];
-                    if (marker) { markersGroup.removeLayer(marker); delete markerLayers[snapshot.key]; }
+                    if (marker) {
+                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) {
+                            map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null;
+                        }
+                        markersGroup.removeLayer(marker); delete markerLayers[snapshot.key];
+                    }
                 });
             }
 
             map.on('click', function(e) {
-                var newName = prompt("지점 이름 입력\n(💡 가로등, 조명 단어 포함 시 스마트 스위치 생성)");
+                var newName = prompt("지점 이름 입력\n(💡 '가로등', '오렌지동', '그린동' 등 핵심 단어 포함 권장)");
                 if (newName && newName.trim() !== "" && database) {
                     var initialColor = (newName.includes('가로등') || newName.includes('조명')) ? 'lamp-off' : 'blue'; 
                     database.ref('markers').push().set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
