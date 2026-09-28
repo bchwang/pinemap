@@ -2,13 +2,23 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <title>양지파인리조트 관리맵</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>스마트파인 - 양지파인리조트 관제</title>
     
+    <!-- ★ 모바일 앱 최적화 메타 태그 (바탕화면 아이콘 이름 및 전체화면 모드) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="스마트파인"> <!-- 아이폰 바탕화면 이름 -->
+    <meta name="application-name" content="스마트파인"> <!-- 안드로이드 바탕화면 이름 -->
+    <meta name="theme-color" content="#1e293b">
+    
+    <!-- ★ 파인 아이콘 파일 연결 (반드시 깃허브에 icon.png 파일을 업로드해야 나타납니다!) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon-precomposed" href="icon.png">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -21,37 +31,11 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
         #map { height: 100%; width: 100%; }
         
-        /* ★ 상단 중앙 마커 필터(스위치) UI */
-        .filter-panel {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            padding: 10px 20px;
-            border-radius: 30px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-            display: flex;
-            gap: 15px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .filter-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            gap: 6px;
-        }
+        .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
+        .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; }
         .filter-item:active { transform: scale(0.9); }
         .filter-item.off { opacity: 0.35; filter: grayscale(80%); }
-        .filter-dot {
-            width: 32px; height: 32px; border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            display: flex; justify-content: center; align-items: center; font-size: 16px;
-        }
+        .filter-dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 16px; }
         .filter-text { font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; }
 
         .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 340px; box-sizing: border-box; transition: opacity 0.2s; }
@@ -117,7 +101,7 @@
 
         @media (max-width: 600px) {
             .filter-panel { top: 10px; padding: 10px 15px; gap: 14px; border-radius: 20px; width: auto; max-width: 95%; }
-            .filter-dot { width: 36px; height: 36px; font-size: 18px; } /* 모바일에서 터치하기 쉽게 크기 확대 */
+            .filter-dot { width: 36px; height: 36px; font-size: 18px; } 
             .filter-text { font-size: 14px; }
             
             .info-panel { top: auto; bottom: 90px; right: 10px; left: 10px; width: auto; max-width: none; padding: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
@@ -139,7 +123,6 @@
 </head>
 <body>
     
-    <!-- ★ 상단 중앙 마커 필터 스위치 -->
     <div class="filter-panel" id="filter-panel">
         <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')">
             <div class="filter-dot dot-blue"></div>
@@ -157,7 +140,6 @@
             <div class="filter-dot dot-green"></div>
             <div class="filter-text">완료</div>
         </div>
-        <!-- 확장성: 가로등 스위치 추가 -->
         <div class="filter-item" id="filter-lamp" onclick="toggleFilter('lamp')">
             <div class="filter-dot dot-lamp">💡</div>
             <div class="filter-text">가로등</div>
@@ -213,47 +195,21 @@
     </div>
 
     <script>
-        // ★ 필터 상태 관리 변수 (처음엔 모두 켜짐 상태)
-        var activeFilters = {
-            'blue': true,
-            'red': true,
-            'orange': true,
-            'green': true,
-            'lamp': true
-        };
+        var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
 
-        // ★ 필터 스위치 클릭 함수
         function toggleFilter(colorGroup) {
-            activeFilters[colorGroup] = !activeFilters[colorGroup]; // On/Off 토글
-            
+            activeFilters[colorGroup] = !activeFilters[colorGroup]; 
             var btn = document.getElementById('filter-' + colorGroup);
-            if (activeFilters[colorGroup]) {
-                btn.classList.remove('off');
-            } else {
-                btn.classList.add('off');
-            }
-            
+            if (activeFilters[colorGroup]) { btn.classList.remove('off'); } else { btn.classList.add('off'); }
             refreshMarkersDisplay();
         }
 
-        // ★ 지도에 마커를 다시 그리는(필터링) 함수
         function refreshMarkersDisplay() {
             for (var key in markerLayers) {
-                var marker = markerLayers[key];
-                var c = marker.customColor;
-                
-                // 가로등은 켜짐(lamp-on), 꺼짐(lamp-off) 모두 'lamp' 그룹으로 묶음
+                var marker = markerLayers[key]; var c = marker.customColor;
                 var group = (c === 'lamp-on' || c === 'lamp-off') ? 'lamp' : c;
-                
-                if (activeFilters[group]) {
-                    if (!markersGroup.hasLayer(marker)) {
-                        markersGroup.addLayer(marker);
-                    }
-                } else {
-                    if (markersGroup.hasLayer(marker)) {
-                        markersGroup.removeLayer(marker);
-                    }
-                }
+                if (activeFilters[group]) { if (!markersGroup.hasLayer(marker)) { markersGroup.addLayer(marker); } } 
+                else { if (markersGroup.hasLayer(marker)) { markersGroup.removeLayer(marker); } }
             }
         }
 
@@ -431,7 +387,7 @@
                     onBtn.onclick = function() { 
                         marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
                         if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' }); 
-                        refreshMarkersDisplay(); // ★ 필터 즉각 반영
+                        refreshMarkersDisplay(); 
                     };
                     offBtn.onclick = function() { 
                         marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off'; 
@@ -481,11 +437,8 @@
 
                 markerLayers[dbKey] = marker;
                 
-                // ★ 필터가 켜져있을 때만 지도에 추가
                 var group = (colorType === 'lamp-on' || colorType === 'lamp-off') ? 'lamp' : colorType;
-                if (activeFilters[group]) {
-                    markersGroup.addLayer(marker);
-                }
+                if (activeFilters[group]) { markersGroup.addLayer(marker); }
             }
 
             if(database) {
@@ -506,8 +459,7 @@
                         if (window.currentLogDbKey === snapshot.key) { renderLogList(snapshot.key); }
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) { activeTextDiv.innerText = data.text; }
-                        
-                        refreshMarkersDisplay(); // ★ 다른 사람이 색상을 바꾸면 필터 즉각 갱신
+                        refreshMarkersDisplay(); 
                     }
                 });
                 markersRef.on('child_removed', function(snapshot) {
