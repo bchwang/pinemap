@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>스마트파인 - 양지파인리조트 관제</title>
     
-    <!-- ★ 핵심 1: 모바일 화면 절대 잠금 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,7 +11,6 @@
     <meta name="application-name" content="스마트파인"> 
     <meta name="theme-color" content="#1e293b">
     
-    <!-- ★ 핵심 2: 초강력 캐시 방지(Cache-Busting) 메타 태그 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -87,8 +85,26 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; }
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 16px; }
 
-        /* PC용 툴팁: 답답하지 않게 14px로 유지 */
-        .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 600; border-radius: 8px; font-size: 14px; padding: 6px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: 0px; }
+        /* ★ 천재적 개선: 마커 툴팁 디자인을 가벼운 둥근 캡슐(Pill) 형태로 변경하고 화살표 제거 */
+        .custom-tooltip { 
+            background: rgba(15, 23, 42, 0.85); /* 약간 더 투명하게 */
+            border: none !important; /* 테두리 없애서 깔끔하게 */
+            color: white; 
+            font-weight: 700; 
+            border-radius: 30px !important; /* 네모 대신 캡슐형 모서리 */
+            font-size: 14px; 
+            padding: 4px 12px !important; /* 위아래 패딩 다이어트 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; 
+            backdrop-filter: blur(4px); 
+            white-space: nowrap; 
+            letter-spacing: -0.5px;
+        }
+        
+        /* 거추장스러운 툴팁 꼬리(화살표) 완전 제거 */
+        .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before {
+            display: none !important;
+        }
+
         .editable-popup { font-weight: 700; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
         
         .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 14px 24px; border-radius: 30px; font-size: 15px; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
@@ -126,64 +142,60 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ★ 모바일 스마트폰 화면 완벽 통제 (글씨 초대형화 및 강제 고정) */
+        /* ★ 모바일 스마트폰 화면 최적화 */
         @media (max-width: 600px) {
+            .filter-panel { top: 10px; padding: 12px 18px; gap: 16px; border-radius: 25px; width: auto; max-width: 95%; }
+            .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
+            .filter-text { font-size: 15px !important; font-weight: 800 !important; } 
             
-            /* 1. 상단 스위치 필터 초대형화 */
-            .filter-panel { top: 10px; padding: 14px 20px; gap: 18px; border-radius: 25px; width: auto; max-width: 95%; }
-            .filter-dot { width: 44px; height: 44px; font-size: 24px; } 
-            .filter-text { font-size: 18px !important; font-weight: 900 !important; } 
-            
-            /* 2. 메인 패널 글씨 및 버튼 초대형화 */
-            .info-panel { top: auto; bottom: 85px; right: 10px; left: 10px; width: auto; max-width: none; padding: 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); border-radius: 20px; }
-            .close-btn { top: -16px; right: -8px; width: 50px; height: 50px; font-size: 24px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+            .info-panel { top: auto; bottom: 85px; right: 10px; left: 10px; width: auto; max-width: none; padding: 22px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); border-radius: 20px; }
+            .close-btn { top: -16px; right: -8px; width: 48px; height: 48px; font-size: 24px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
-            .panel-title { font-size: 26px !important; margin-bottom: 20px; margin-top: 4px; letter-spacing: -1px; } 
-            .weather-widget { padding: 16px; margin-bottom: 20px; }
-            .weather-date { font-size: 18px !important; } 
-            .weather-info { font-size: 20px !important; padding: 10px 18px; } 
+            .panel-title { font-size: 22px !important; margin-bottom: 18px; margin-top: 4px; letter-spacing: -1px; } 
+            .weather-widget { padding: 14px; margin-bottom: 18px; }
+            .weather-date { font-size: 16px !important; } 
+            .weather-info { font-size: 18px !important; padding: 8px 16px; } 
             
-            .search-box input { font-size: 20px !important; padding: 18px; } 
-            .search-box button { font-size: 20px !important; padding: 0 28px; } 
+            .search-box input { font-size: 18px !important; padding: 16px; } 
+            .search-box button { font-size: 18px !important; padding: 0 24px; } 
             
-            .legend-box { padding: 18px; gap: 14px; } 
-            .legend-item { font-size: 18px !important; font-weight: 800 !important; } 
-            .legend-lamp-box { font-size: 18px !important; font-weight: 800 !important; padding: 14px; }
+            .legend-box { padding: 16px; gap: 12px; } 
+            .legend-item { font-size: 16px !important; font-weight: 800 !important; } 
+            .legend-lamp-box { font-size: 16px !important; font-weight: 800 !important; padding: 12px; }
             
-            .guide-list { font-size: 18px !important; line-height: 1.6; margin-bottom: 16px; font-weight: 600; } 
-            .guide-list li { margin-bottom: 10px; padding-left: 24px; }
-            .guide-list li::before { font-size: 24px; top: -2px; }
+            .guide-list { font-size: 16px !important; line-height: 1.6; margin-bottom: 16px; font-weight: 600; } 
+            .guide-list li { margin-bottom: 10px; padding-left: 22px; }
+            .guide-list li::before { font-size: 22px; top: -2px; }
 
-            .action-btn { font-size: 20px !important; padding: 20px 0; border-radius: 12px; } 
+            .action-btn { font-size: 18px !important; padding: 16px 0; border-radius: 10px; } 
             
-            .info-toggle-btn { top: auto; bottom: 90px; right: 15px; padding: 16px 26px; border-radius: 30px; font-size: 20px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-            .voice-fab { bottom: 20px; font-size: 20px !important; font-weight: 900 !important; padding: 18px 24px; width: 90%; justify-content: center; border-radius: 40px; } 
+            .info-toggle-btn { top: auto; bottom: 90px; right: 15px; padding: 16px 26px; border-radius: 30px; font-size: 18px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+            .voice-fab { bottom: 20px; font-size: 18px !important; font-weight: 900 !important; padding: 16px 22px; width: 90%; justify-content: center; border-radius: 40px; } 
             
-            /* ★ 3. 핵심: 마커(툴팁) 및 팝업창 글씨 슈퍼 사이즈 고정 (크롬 완벽 제압) */
+            /* ★ 핵심: 모바일에서 마커 글씨 크기는 20px로 또렷하게 유지하되, 패딩을 극단적으로 줄여 박스 부피 최소화 */
             div.leaflet-tooltip.custom-tooltip { 
-                font-size: 26px !important; 
-                padding: 14px 24px !important; 
-                border-radius: 12px !important; 
+                font-size: 20px !important; 
+                padding: 6px 14px !important; /* 위아래, 양옆 여백을 팍 줄여서 네모 상자의 답답함 제거 */
+                border-radius: 30px !important; /* 완벽한 둥근 캡슐형 */
                 font-weight: 900 !important; 
-                letter-spacing: 0px !important;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
+                letter-spacing: -0.5px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
             }
             .leaflet-popup-content .editable-popup { 
-                font-size: 28px !important; 
-                padding: 20px !important; 
+                font-size: 22px !important; 
+                padding: 18px !important; 
                 font-weight: 900 !important; 
                 width: 100% !important;
                 box-sizing: border-box;
                 line-height: 1.3 !important;
             }
             
-            /* 4. 일지 모달창 글씨 초대형화 */
-            .log-title { font-size: 24px !important; }
-            .log-action-btn { font-size: 18px !important; padding: 12px 16px; } 
-            .log-date { font-size: 18px !important; }
-            .log-text { font-size: 20px !important; font-weight: 600; line-height: 1.6 !important; }
-            .log-input { font-size: 20px !important; padding: 20px; }
-            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 20px !important; padding: 20px; font-weight: 800 !important; }
+            .log-title { font-size: 20px !important; }
+            .log-action-btn { font-size: 16px !important; padding: 10px 14px; } 
+            .log-date { font-size: 16px !important; }
+            .log-text { font-size: 18px !important; font-weight: 600; line-height: 1.6 !important; }
+            .log-input { font-size: 18px !important; padding: 18px; }
+            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 18px !important; padding: 18px; font-weight: 800 !important; }
         }
 
         @media print {
