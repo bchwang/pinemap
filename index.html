@@ -4,15 +4,13 @@
     <meta charset="utf-8" />
     <title>스마트파인 - 양지파인리조트 관제</title>
     
-    <!-- ★ 모바일 앱 최적화 메타 태그 (바탕화면 아이콘 이름 및 전체화면 모드) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="스마트파인"> <!-- 아이폰 바탕화면 이름 -->
-    <meta name="application-name" content="스마트파인"> <!-- 안드로이드 바탕화면 이름 -->
+    <meta name="apple-mobile-web-app-title" content="스마트파인"> 
+    <meta name="application-name" content="스마트파인"> 
     <meta name="theme-color" content="#1e293b">
     
-    <!-- ★ 파인 아이콘 파일 연결 (반드시 깃허브에 icon.png 파일을 업로드해야 나타납니다!) -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
@@ -89,7 +87,10 @@
         .log-submit-btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
         
         .btn-log-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        
+        /* ★ 유스텔 및 콘도 연동 버튼 스타일 */
         .btn-yustel { background: #f39c12; color: white; border: none; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 2px 5px rgba(243,156,18,0.3); }
+        .btn-condo { background: #0ea5e9; color: white; border: none; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 2px 5px rgba(14,165,233,0.3); }
 
         .otter-div-icon { background: transparent; border: none; }
         .otter-pop-container { display: flex; flex-direction: column; align-items: center; animation: popUp 0.5s forwards, bobbing 2s infinite ease-in-out 0.5s; cursor: pointer; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
@@ -179,7 +180,6 @@
         </div>
     </div>
 
-    <!-- 점검/수리 일지 팝업창 -->
     <div id="log-modal" class="modal-overlay">
         <div class="log-modal">
             <div class="log-header">
@@ -382,7 +382,7 @@
                     var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기(ON)";
                     onBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
                     var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
-                    offBtn.style.padding = "8px 10px"; offBtn.style.margin = "0 4px"; offBtn.style.borderRadius = "6px"; offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
+                    offBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; offBtn.style.borderRadius = "6px"; offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
 
                     onBtn.onclick = function() { 
                         marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
@@ -419,10 +419,22 @@
                 moveBtn.onclick = function() { var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:"); if (inputPwd === ADMIN_PASSWORD) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } else if (inputPwd !== null) { alert("비밀번호 불일치."); } };
                 
                 actionDiv.appendChild(logBtn);
+                
+                // ★ 유스텔 (오렌지동/그린동) 연결 버튼
                 if (nameText.includes('오렌지동') || nameText.includes('그린동')) {
                     var yustelBtn = document.createElement('button'); yustelBtn.className = 'btn-yustel'; yustelBtn.innerText = "🏢 유스텔 관리 프로그램 열기"; yustelBtn.onclick = function() { window.open('https://bchwang.github.io/yangji24/', '_blank'); marker.closePopup(); };
                     actionDiv.appendChild(yustelBtn);
                 }
+                
+                // ★ 콘도 객실 관리 (v2.0) 연결 버튼 추가
+                if (nameText.includes('콘도')) {
+                    var condoBtn = document.createElement('button'); 
+                    condoBtn.className = 'btn-condo'; 
+                    condoBtn.innerText = "🏨 콘도 객실 관리 열기"; 
+                    condoBtn.onclick = function() { window.open('https://bchwang.github.io/yangji20/', '_blank'); marker.closePopup(); };
+                    actionDiv.appendChild(condoBtn);
+                }
+
                 actionDiv.appendChild(moveBtn); popupContent.appendChild(actionDiv);
                 marker.bindPopup(popupContent);
 
@@ -472,7 +484,7 @@
             }
 
             map.on('click', function(e) {
-                var newName = prompt("지점 이름 입력\n(💡 '가로등', '오렌지동', '그린동' 등 핵심 단어 포함 권장)");
+                var newName = prompt("지점 이름 입력\n(💡 '가로등', '오렌지동', '그린동', '콘도' 등 핵심 단어 포함 권장)");
                 if (newName && newName.trim() !== "" && database) {
                     var initialColor = (newName.includes('가로등') || newName.includes('조명')) ? 'lamp-off' : 'blue'; 
                     database.ref('markers').push().set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
