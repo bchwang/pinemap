@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <title>스마트파인 - 양지파인리조트 관제</title>
     
-    <!-- ★ 핵심: 모바일에서 줌인/줌아웃 시 웹페이지 전체가 축소되는 현상 완벽 방어 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
+    <!-- ★ 모바일 화면 절대 잠금 (어떤 브라우저든 맘대로 축소/확대 불가) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="스마트파인"> 
@@ -28,7 +28,6 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        /* ★ 브라우저 자동 글씨 조절 완전 차단 (none 적용) */
         html, body { 
             width: 100%; height: 100%; 
             margin: 0; padding: 0; overflow: hidden; 
@@ -83,7 +82,7 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; }
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 16px; }
 
-        /* ★ PC용 마커 툴팁 디자인 (세련되고 편안한 굵기와 크기로 복원) */
+        /* ★ PC용 툴팁: 답답하지 않게 14px로 유지 */
         .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 600; border-radius: 8px; font-size: 14px; padding: 6px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: 0px; }
         .editable-popup { font-weight: 700; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
         
@@ -122,60 +121,64 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ★ 모바일 스마트폰 화면 최적화 (절대 크기 px 강제 할당) */
+        /* ★ 모바일 스마트폰 화면 완벽 통제 (글씨 초대형화 및 강제 고정) */
         @media (max-width: 600px) {
-            .filter-panel { top: 10px; padding: 10px 14px; gap: 12px; border-radius: 20px; width: auto; max-width: 95%; }
-            .filter-dot { width: 34px; height: 34px; font-size: 18px; } 
-            .filter-text { font-size: 14px; font-weight: 700; } 
             
-            .info-panel { top: auto; bottom: 85px; right: 10px; left: 10px; width: auto; max-width: none; padding: 20px 18px; box-shadow: 0 -4px 20px rgba(0,0,0,0.18); border-radius: 18px; }
-            .close-btn { top: -14px; right: -8px; width: 44px; height: 44px; font-size: 20px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+            /* 1. 상단 스위치 필터 초대형화 */
+            .filter-panel { top: 10px; padding: 14px 20px; gap: 18px; border-radius: 25px; width: auto; max-width: 95%; }
+            .filter-dot { width: 44px; height: 44px; font-size: 24px; } 
+            .filter-text { font-size: 18px !important; font-weight: 900 !important; } 
+            
+            /* 2. 메인 패널 글씨 및 버튼 초대형화 */
+            .info-panel { top: auto; bottom: 85px; right: 10px; left: 10px; width: auto; max-width: none; padding: 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); border-radius: 20px; }
+            .close-btn { top: -16px; right: -8px; width: 50px; height: 50px; font-size: 24px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
-            .panel-title { font-size: 18px; margin-bottom: 14px; margin-top: 4px; } 
-            .weather-widget { padding: 12px; margin-bottom: 14px; }
-            .weather-date { font-size: 14px; } 
-            .weather-info { font-size: 15px; padding: 6px 12px; } 
+            .panel-title { font-size: 26px !important; margin-bottom: 20px; margin-top: 4px; letter-spacing: -1px; } 
+            .weather-widget { padding: 16px; margin-bottom: 20px; }
+            .weather-date { font-size: 18px !important; } 
+            .weather-info { font-size: 20px !important; padding: 10px 18px; } 
             
-            .search-box input { font-size: 15px; padding: 12px; } 
-            .search-box button { font-size: 15px; padding: 0 18px; } 
+            .search-box input { font-size: 20px !important; padding: 18px; } 
+            .search-box button { font-size: 20px !important; padding: 0 28px; } 
             
-            .legend-box { padding: 14px; gap: 10px; } 
-            .legend-item { font-size: 14px; font-weight: 700; } 
-            .legend-lamp-box { font-size: 14px; font-weight: 700; padding: 10px; }
+            .legend-box { padding: 18px; gap: 14px; } 
+            .legend-item { font-size: 18px !important; font-weight: 800 !important; } 
+            .legend-lamp-box { font-size: 18px !important; font-weight: 800 !important; padding: 14px; }
             
-            .guide-list { font-size: 14px; line-height: 1.6; margin-bottom: 12px; font-weight: 500; } 
-            .guide-list li { margin-bottom: 8px; padding-left: 18px; }
-            .guide-list li::before { font-size: 18px; top: -1px; }
+            .guide-list { font-size: 18px !important; line-height: 1.6; margin-bottom: 16px; font-weight: 600; } 
+            .guide-list li { margin-bottom: 10px; padding-left: 24px; }
+            .guide-list li::before { font-size: 24px; top: -2px; }
 
-            .action-btn { font-size: 15px; padding: 14px 0; border-radius: 8px; } 
+            .action-btn { font-size: 20px !important; padding: 20px 0; border-radius: 12px; } 
             
-            .info-toggle-btn { top: auto; bottom: 90px; right: 15px; padding: 14px 22px; border-radius: 30px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-            .voice-fab { bottom: 20px; font-size: 15px; font-weight: 800; padding: 14px 20px; width: 85%; justify-content: center; } 
+            .info-toggle-btn { top: auto; bottom: 90px; right: 15px; padding: 16px 26px; border-radius: 30px; font-size: 20px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+            .voice-fab { bottom: 20px; font-size: 20px !important; font-weight: 900 !important; padding: 18px 24px; width: 90%; justify-content: center; border-radius: 40px; } 
             
-            /* ★ 핵심: 마커(툴팁) 및 팝업 텍스트 모바일 전용 대형 사이즈 (크롬 무시) */
-            .leaflet-tooltip.custom-tooltip { 
-                font-size: 18px !important; 
-                padding: 10px 16px !important; 
-                border-radius: 10px !important; 
-                font-weight: 700 !important; 
+            /* ★ 3. 핵심: 마커(툴팁) 및 팝업창 글씨 슈퍼 사이즈 고정 (크롬 완벽 제압) */
+            div.leaflet-tooltip.custom-tooltip { 
+                font-size: 26px !important; 
+                padding: 14px 24px !important; 
+                border-radius: 12px !important; 
+                font-weight: 900 !important; 
                 letter-spacing: 0px !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
             }
             .leaflet-popup-content .editable-popup { 
-                font-size: 20px !important; 
-                padding: 16px !important; 
-                font-weight: 700 !important; 
+                font-size: 28px !important; 
+                padding: 20px !important; 
+                font-weight: 900 !important; 
                 width: 100% !important;
                 box-sizing: border-box;
                 line-height: 1.3 !important;
             }
             
-            .log-title { font-size: 17px; }
-            .log-action-btn { font-size: 14px; padding: 6px 10px; } 
-            .log-date { font-size: 14px; }
-            .log-text { font-size: 15px; }
-            .log-input { font-size: 15px; padding: 12px; }
-            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 15px; padding: 12px; }
+            /* 4. 일지 모달창 글씨 초대형화 */
+            .log-title { font-size: 24px !important; }
+            .log-action-btn { font-size: 18px !important; padding: 12px 16px; } 
+            .log-date { font-size: 18px !important; }
+            .log-text { font-size: 20px !important; font-weight: 600; line-height: 1.6 !important; }
+            .log-input { font-size: 20px !important; padding: 20px; }
+            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 20px !important; padding: 20px; font-weight: 800 !important; }
         }
 
         @media print {
@@ -238,7 +241,7 @@
             </div>
             <div class="log-body"><div class="log-list" id="log-list"></div></div>
             <div class="log-footer">
-                <textarea id="log-input-text" class="log-input" rows="2" placeholder="점검 내용, 수리 내역 등을 입력하세요."></textarea>
+                <textarea id="log-input-text" class="log-input" rows="2" placeholder="점검 내용, 수리 내역, 교체 부품 등을 간략히 입력하세요."></textarea>
                 <button class="log-submit-btn" onclick="submitLog()">기록 추가하기</button>
             </div>
         </div>
