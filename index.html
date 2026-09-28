@@ -4,13 +4,18 @@
     <meta charset="utf-8" />
     <title>스마트파인 - 양지파인리조트 관제</title>
     
-    <!-- ★ 모바일 화면 절대 잠금 (어떤 브라우저든 맘대로 축소/확대 불가) -->
+    <!-- ★ 핵심 1: 모바일 화면 절대 잠금 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="스마트파인"> 
     <meta name="application-name" content="스마트파인"> 
     <meta name="theme-color" content="#1e293b">
+    
+    <!-- ★ 핵심 2: 초강력 캐시 방지(Cache-Busting) 메타 태그 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
@@ -82,7 +87,7 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; }
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 16px; }
 
-        /* ★ PC용 툴팁: 답답하지 않게 14px로 유지 */
+        /* PC용 툴팁: 답답하지 않게 14px로 유지 */
         .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 600; border-radius: 8px; font-size: 14px; padding: 6px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: 0px; }
         .editable-popup { font-weight: 700; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
         
@@ -464,7 +469,7 @@
                     var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기(ON)";
                     onBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
                     var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
-                    offBtn.style.padding = "8px 10px"; offBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
+                    offBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
 
                     onBtn.onclick = function() { 
                         marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
