@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <title>스마트파인 - 양지파인리조트 관제</title>
     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- ★ 크롬 화면 축소 완벽 방어 메타 태그 (shrink-to-fit=no 추가) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="스마트파인"> 
@@ -26,14 +27,17 @@
 
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        /* ★ 핵심: 모든 브라우저의 텍스트 강제 축소 방지 기능 추가 */
+        
+        /* ★ 크롬 강제 축소 방지 및 스마트폰 실제 화면 크기 고정 */
         html, body { 
-            height: 100%; margin: 0; padding: 0; overflow: hidden; 
+            width: 100vw; height: 100vh; height: 100dvh; /* 스마트폰 물리적 화면 꽉 채우기 */
+            margin: 0; padding: 0; overflow: hidden; 
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; 
+            font-size: 16px; /* 기준 폰트 크기 고정 (크롬 오작동 방지) */
             word-break: keep-all; 
             overflow-wrap: break-word; 
             letter-spacing: -0.3px; 
-            -webkit-text-size-adjust: 100%; /* 크롬, 사파리 글씨 축소 방지 */
+            -webkit-text-size-adjust: 100%; 
             -moz-text-size-adjust: 100%;
             text-size-adjust: 100%;
         }
@@ -118,43 +122,42 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ★ 스마트폰 극강 시인성 최적화 (글씨 무조건 큼직하게 강제 고정) */
+        /* ★ 모바일 스마트폰 화면에서 크롬 강제 축소 버그 제압 및 글씨 압도적 확대 */
         @media (max-width: 600px) {
-            /* 지도 자체의 기본 폰트 크기부터 강제 상향 */
-            .leaflet-container { font-size: 16px !important; }
+            html, body { font-size: 18px !important; } /* 전체 기본 폰트 자체를 무식하게 키움 */
 
             .filter-panel { top: 10px; padding: 12px 18px; gap: 16px; border-radius: 20px; width: auto; max-width: 95%; }
             .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
-            .filter-text { font-size: 15px; }
+            .filter-text { font-size: 16px !important; font-weight: 900 !important; } /* 스위치 글씨 대폭 확대 */
             
             .info-panel { top: auto; bottom: 90px; right: 10px; left: 10px; width: auto; max-width: none; padding: 22px 20px; box-shadow: 0 -4px 24px rgba(0,0,0,0.18); border-radius: 20px; }
-            .close-btn { top: -16px; right: -10px; width: 48px; height: 48px; font-size: 22px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+            .close-btn { top: -16px; right: -10px; width: 48px; height: 48px; font-size: 24px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
-            .panel-title { font-size: 22px; margin-bottom: 18px; margin-top: 6px; } 
+            .panel-title { font-size: 24px !important; margin-bottom: 18px; margin-top: 6px; } 
             .weather-widget { padding: 16px; margin-bottom: 18px; }
-            .weather-date { font-size: 16px; } 
-            .weather-info { font-size: 17px; padding: 8px 16px; } 
+            .weather-date { font-size: 17px !important; } 
+            .weather-info { font-size: 18px !important; padding: 8px 16px; } 
             
-            .search-box input { font-size: 17px; padding: 16px; } 
-            .search-box button { font-size: 17px; padding: 0 24px; } 
+            .search-box input { font-size: 18px !important; padding: 16px; } 
+            .search-box button { font-size: 18px !important; padding: 0 24px; } 
             
             .legend-box { padding: 16px; gap: 12px; } 
-            .legend-item { font-size: 16px; } 
-            .legend-lamp-box { font-size: 16px; padding: 12px; }
+            .legend-item { font-size: 17px !important; font-weight: 800 !important; } 
+            .legend-lamp-box { font-size: 17px !important; font-weight: 800 !important; padding: 12px; }
             
-            .guide-list { font-size: 16px; line-height: 1.6; margin-bottom: 15px; } 
+            .guide-list { font-size: 17px !important; line-height: 1.6; margin-bottom: 15px; font-weight: 600; } 
             .guide-list li { margin-bottom: 10px; padding-left: 20px; }
-            .guide-list li::before { font-size: 20px; top: -1px; }
+            .guide-list li::before { font-size: 22px; top: -2px; }
 
-            .action-btn { font-size: 18px; padding: 18px 0; border-radius: 10px; } 
+            .action-btn { font-size: 18px !important; padding: 18px 0; border-radius: 10px; } 
             
-            .info-toggle-btn { top: auto; bottom: 95px; right: 15px; padding: 16px 26px; border-radius: 30px; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-            .voice-fab { bottom: 20px; font-size: 18px; padding: 18px 24px; width: 90%; justify-content: center; } 
+            .info-toggle-btn { top: auto; bottom: 95px; right: 15px; padding: 16px 26px; border-radius: 30px; font-size: 18px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+            .voice-fab { bottom: 20px; font-size: 18px !important; font-weight: 900 !important; padding: 18px 24px; width: 90%; justify-content: center; } 
             
-            /* ★ 핵심: 마커(툴팁) 및 팝업창 텍스트 브라우저 무시하고 강제 슈퍼 확대 */
-            .leaflet-tooltip.custom-tooltip { 
+            /* ★ 마커(말풍선) 글씨 최우선 강제 확대 (절대 안 작아짐) */
+            .leaflet-container .custom-tooltip { 
                 font-size: 22px !important; 
-                padding: 12px 20px !important; 
+                padding: 14px 22px !important; 
                 border-radius: 12px !important; 
                 font-weight: 900 !important; 
                 letter-spacing: 0px !important;
@@ -162,17 +165,18 @@
             }
             .leaflet-popup-content .editable-popup { 
                 font-size: 24px !important; 
-                padding: 16px !important; 
+                padding: 18px !important; 
                 font-weight: 900 !important; 
+                width: 100% !important;
+                box-sizing: border-box;
             }
             
-            /* 일지 모달창 글씨도 큼직하게 */
-            .log-title { font-size: 18px; }
-            .log-action-btn { font-size: 15px; padding: 8px 12px; } 
-            .log-date { font-size: 15px; }
-            .log-text { font-size: 17px; }
-            .log-input { font-size: 16px; padding: 14px; }
-            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 16px; padding: 14px; }
+            .log-title { font-size: 20px !important; }
+            .log-action-btn { font-size: 16px !important; padding: 10px 14px; } 
+            .log-date { font-size: 16px !important; }
+            .log-text { font-size: 18px !important; font-weight: 600; }
+            .log-input { font-size: 18px !important; padding: 16px; }
+            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 18px !important; padding: 16px; }
         }
 
         @media print {
@@ -458,7 +462,7 @@
                     var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기(ON)";
                     onBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
                     var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
-                    offBtn.style.padding = "8px 10px"; offBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
+                    offBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
 
                     onBtn.onclick = function() { 
                         marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
