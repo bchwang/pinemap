@@ -26,7 +26,6 @@
 
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        /* ★ 전체 텍스트에 단어 단위 줄바꿈 적용 및 자간 최적화 */
         html, body { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; 
@@ -73,24 +72,13 @@
         .action-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); }
         .btn-excel { background-color: #10b981; } .btn-print { background-color: #475569; }
 
-        /* ★ 가이드 리스트 정렬 및 가독성 디자인 완벽 개선 */
-        .guide-list { 
-            margin: 0; padding: 0; list-style: none; 
-            font-size: 14px; color: #334155; line-height: 1.6; 
-        }
-        .guide-list li { 
-            position: relative; 
-            padding-left: 18px; /* 첫 줄 시작점 띄우기 */
-            margin-bottom: 8px; 
-        }
-        .guide-list li::before { 
-            content: "•"; 
-            position: absolute; left: 2px; top: 0; /* 점 위치 고정 */
-            color: #94a3b8; font-weight: bold; font-size: 16px;
-        }
+        .guide-list { margin: 0; padding: 0; list-style: none; font-size: 14px; color: #334155; line-height: 1.6; }
+        .guide-list li { position: relative; padding-left: 18px; margin-bottom: 8px; }
+        .guide-list li::before { content: "•"; position: absolute; left: 2px; top: 0; color: #94a3b8; font-weight: bold; font-size: 16px; }
 
-        .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 700; border-radius: 6px; font-size: 14px; padding: 6px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; }
-        .editable-popup { font-weight: 600; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #2d3748; transition: border-color 0.2s; }
+        /* ★ PC용 마커 툴팁 디자인 기본값도 더 또렷하게 상향 */
+        .custom-tooltip { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 800; border-radius: 8px; font-size: 15px; padding: 8px 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: 0px; }
+        .editable-popup { font-weight: 700; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 16px; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
         
         .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 14px 24px; border-radius: 30px; font-size: 16px; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         
@@ -148,7 +136,6 @@
             .legend-item { font-size: 14.5px; } 
             .legend-lamp-box { font-size: 14.5px; padding: 12px; }
             
-            /* ★ 모바일에서의 가이드 텍스트 크기 확대 및 정렬 고정 */
             .guide-list { font-size: 15px; line-height: 1.6; margin-bottom: 15px; } 
             .guide-list li { margin-bottom: 10px; padding-left: 20px; }
             .guide-list li::before { font-size: 18px; top: -1px; }
@@ -158,8 +145,20 @@
             .info-toggle-btn { top: auto; bottom: 95px; right: 15px; padding: 14px 22px; border-radius: 30px; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .voice-fab { bottom: 20px; font-size: 16px; padding: 16px 20px; width: 90%; justify-content: center; } 
             
-            .custom-tooltip { font-size: 16.5px; padding: 8px 14px; border-radius: 8px; }
-            .editable-popup { font-size: 18px; padding: 12px; }
+            /* ★ 핵심: 스마트폰 환경에서 마커 글씨 초강력 확대 및 시인성 고정 */
+            .custom-tooltip { 
+                font-size: 20px !important; 
+                padding: 10px 18px !important; 
+                border-radius: 10px !important; 
+                font-weight: 900 !important; 
+                letter-spacing: 0px !important;
+                box-shadow: 0 6px 15px rgba(0,0,0,0.3) !important;
+            }
+            .editable-popup { 
+                font-size: 22px !important; 
+                padding: 16px !important; 
+                font-weight: 800 !important; 
+            }
             
             .log-action-btn { font-size: 13.5px; padding: 6px 10px; } 
             .log-date { font-size: 13.5px; }
@@ -332,7 +331,6 @@
 
             var markersGroup = L.layerGroup().addTo(map); 
             var markerLayers = {}; 
-            window.currentLogDbKey = null;
 
             window.downloadExcel = function() {
                 var keys = Object.keys(markerLayers);
@@ -452,8 +450,16 @@
                     var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
                     offBtn.style.padding = "8px 10px"; offBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; offBtn.style.border = "none"; offBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
 
-                    onBtn.onclick = function() { marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' }); refreshMarkersDisplay(); };
-                    offBtn.onclick = function() { marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off'; if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' }); refreshMarkersDisplay(); };
+                    onBtn.onclick = function() { 
+                        marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
+                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' }); 
+                        refreshMarkersDisplay(); 
+                    };
+                    offBtn.onclick = function() { 
+                        marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off'; 
+                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' }); 
+                        refreshMarkersDisplay(); 
+                    };
                     colorDiv.appendChild(onBtn); colorDiv.appendChild(offBtn);
                 } 
                 else {
@@ -463,7 +469,11 @@
                         var btn = document.createElement('button'); btn.style.backgroundColor = colorHex[c];
                         btn.style.border = '2px solid transparent'; btn.style.width = '26px'; btn.style.height = '26px';
                         btn.style.borderRadius = '50%'; btn.style.margin = '0 4px'; btn.style.cursor = 'pointer';
-                        btn.onclick = function() { marker.setIcon(icons[c]); marker.customColor = c; if(database) database.ref('markers/' + dbKey).update({ color: c }); refreshMarkersDisplay(); };
+                        btn.onclick = function() { 
+                            marker.setIcon(icons[c]); marker.customColor = c; 
+                            if(database) database.ref('markers/' + dbKey).update({ color: c }); 
+                            refreshMarkersDisplay(); 
+                        };
                         colorDiv.appendChild(btn);
                     });
                 }
@@ -480,8 +490,12 @@
                     var yustelBtn = document.createElement('button'); yustelBtn.className = 'btn-yustel'; yustelBtn.innerText = "🏢 유스텔 관리 프로그램 열기"; yustelBtn.onclick = function() { window.open('https://bchwang.github.io/yangji24/', '_blank'); marker.closePopup(); };
                     actionDiv.appendChild(yustelBtn);
                 }
+                
                 if (nameText.includes('콘도')) {
-                    var condoBtn = document.createElement('button'); condoBtn.className = 'btn-condo'; condoBtn.innerText = "🏨 콘도 객실 관리 열기"; condoBtn.onclick = function() { window.open('https://bchwang.github.io/yangji20/', '_blank'); marker.closePopup(); };
+                    var condoBtn = document.createElement('button'); 
+                    condoBtn.className = 'btn-condo'; 
+                    condoBtn.innerText = "🏨 콘도 객실 관리 열기"; 
+                    condoBtn.onclick = function() { window.open('https://bchwang.github.io/yangji20/', '_blank'); marker.closePopup(); };
                     actionDiv.appendChild(condoBtn);
                 }
 
@@ -518,7 +532,9 @@
                         if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
                         marker.setIcon(icons[data.color]); marker.customColor = data.color; 
                         marker.logs = data.logs || null;
+                        
                         if (window.currentLogDbKey === snapshot.key) { renderLogList(snapshot.key); }
+                        
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) { activeTextDiv.innerText = data.text; }
                         refreshMarkersDisplay(); 
