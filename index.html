@@ -37,8 +37,6 @@
         .filter-text { font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; }
 
         .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 340px; box-sizing: border-box; transition: opacity 0.2s; }
-        
-        /* ★ PC용 기본 닫기 버튼 디자인 (누르기 편한 원형 배지) */
         .close-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; font-size: 16px; color: #475569; background: #f1f5f9; border-radius: 50%; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 1001; }
         .close-btn:hover { background: #e2e8f0; color: #0f172a; transform: scale(1.1); }
 
@@ -79,14 +77,19 @@
         .log-modal { background: white; width: 90%; max-width: 400px; border-radius: 12px; display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .log-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .log-title { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0; }
-        
-        /* 일지 팝업창 닫기 버튼 개선 */
         .log-close { width: 36px; height: 36px; background: #e2e8f0; border-radius: 50%; border: none; font-size: 18px; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
         .log-body { padding: 15px; overflow-y: auto; flex: 1; background: #f1f5f9; }
         .log-list { display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .log-date { font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+        
+        /* ★ 일지 수정/삭제 버튼을 위한 새로운 디자인 추가 */
+        .log-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px; }
+        .log-date { font-size: 12.5px; color: #64748b; font-weight: 600; }
+        .log-actions { display: flex; gap: 6px; }
+        .log-action-btn { background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; gap: 3px; }
+        .log-action-btn:hover { background: #e2e8f0; color: #1e293b; }
+        
         .log-text { font-size: 14px; color: #334155; line-height: 1.5; word-break: break-word; }
         .log-footer { padding: 15px; background: white; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
         .log-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; resize: none; font-family: inherit; outline: none; }
@@ -104,47 +107,39 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ★ 모바일 스마트폰 화면 완벽 최적화 */
         @media (max-width: 600px) {
             .filter-panel { top: 10px; padding: 10px 15px; gap: 14px; border-radius: 20px; width: auto; max-width: 95%; }
             .filter-dot { width: 36px; height: 36px; font-size: 18px; } 
             .filter-text { font-size: 14px; }
             
             .info-panel { top: auto; bottom: 90px; right: 10px; left: 10px; width: auto; max-width: none; padding: 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); border-radius: 20px; }
-            
-            /* ★ 1. 천재적인 닫기 버튼: 화면 모서리에 크고 진하게 툭 튀어나옴 (플로팅 배지) */
-            .close-btn { 
-                top: -15px; right: -10px; 
-                width: 48px; height: 48px; 
-                font-size: 22px; 
-                background: #1e293b; color: #ffffff; 
-                border: 3px solid #ffffff; 
-                box-shadow: 0 4px 12px rgba(0,0,0,0.25); 
-            }
+            .close-btn { top: -15px; right: -10px; width: 48px; height: 48px; font-size: 22px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
-            /* ★ 2. 모바일 글씨 크기 돋보기 확대 */
-            .panel-title { font-size: 20px; margin-bottom: 18px; margin-top: 6px; } /* 제목 확대 */
+            .panel-title { font-size: 20px; margin-bottom: 18px; margin-top: 6px; } 
             .weather-widget { padding: 14px; margin-bottom: 18px; }
-            .weather-date { font-size: 15px; } /* 날짜 확대 */
-            .weather-info { font-size: 16px; padding: 8px 16px; } /* 날씨 온도 확대 */
+            .weather-date { font-size: 15px; } 
+            .weather-info { font-size: 16px; padding: 8px 16px; } 
             
-            .search-box input { font-size: 16px; padding: 14px; } /* 검색창 확대 */
-            .search-box button { font-size: 16px; padding: 0 20px; } /* 찾기 버튼 확대 */
+            .search-box input { font-size: 16px; padding: 14px; } 
+            .search-box button { font-size: 16px; padding: 0 20px; } 
             
             .legend-box { padding: 15px; gap: 10px; } 
-            .legend-item { font-size: 15px; } /* 범례 글씨 확대 */
+            .legend-item { font-size: 15px; } 
             .legend-lamp-box { font-size: 15px; padding: 12px; }
             
-            .guide-list { font-size: 15px; line-height: 1.8; margin-bottom: 10px; } /* 안내 글씨 대폭 확대 및 줄간격 확보 */
+            .guide-list { font-size: 15px; line-height: 1.8; margin-bottom: 10px; } 
             .guide-list li { margin-bottom: 8px; padding-left: 14px; }
-            
-            .action-btn { font-size: 16px; padding: 15px 0; } /* 엑셀/인쇄 버튼 크게 */
+            .action-btn { font-size: 16px; padding: 15px 0; } 
             
             .info-toggle-btn { top: auto; bottom: 95px; right: 15px; padding: 14px 22px; border-radius: 30px; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
             .voice-fab { bottom: 20px; font-size: 16px; padding: 16px 20px; width: 90%; justify-content: center; } 
             
             .custom-tooltip { font-size: 16.5px; padding: 8px 14px; border-radius: 8px; }
             .editable-popup { font-size: 18px; padding: 12px; }
+            
+            .log-action-btn { font-size: 13.5px; padding: 6px 10px; } /* 모바일에서 수정/삭제 버튼 살짝 키움 */
+            .log-date { font-size: 13.5px; }
+            .log-text { font-size: 15px; }
         }
 
         @media print {
@@ -159,26 +154,11 @@
 <body>
     
     <div class="filter-panel" id="filter-panel">
-        <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')">
-            <div class="filter-dot dot-blue"></div>
-            <div class="filter-text">시설</div>
-        </div>
-        <div class="filter-item" id="filter-red" onclick="toggleFilter('red')">
-            <div class="filter-dot dot-red"></div>
-            <div class="filter-text">안전</div>
-        </div>
-        <div class="filter-item" id="filter-orange" onclick="toggleFilter('orange')">
-            <div class="filter-dot dot-orange"></div>
-            <div class="filter-text">점검</div>
-        </div>
-        <div class="filter-item" id="filter-green" onclick="toggleFilter('green')">
-            <div class="filter-dot dot-green"></div>
-            <div class="filter-text">완료</div>
-        </div>
-        <div class="filter-item" id="filter-lamp" onclick="toggleFilter('lamp')">
-            <div class="filter-dot dot-lamp">💡</div>
-            <div class="filter-text">가로등</div>
-        </div>
+        <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')"><div class="filter-dot dot-blue"></div><div class="filter-text">시설</div></div>
+        <div class="filter-item" id="filter-red" onclick="toggleFilter('red')"><div class="filter-dot dot-red"></div><div class="filter-text">안전</div></div>
+        <div class="filter-item" id="filter-orange" onclick="toggleFilter('orange')"><div class="filter-dot dot-orange"></div><div class="filter-text">점검</div></div>
+        <div class="filter-item" id="filter-green" onclick="toggleFilter('green')"><div class="filter-dot dot-green"></div><div class="filter-text">완료</div></div>
+        <div class="filter-item" id="filter-lamp" onclick="toggleFilter('lamp')"><div class="filter-dot dot-lamp">💡</div><div class="filter-text">가로등</div></div>
     </div>
 
     <div id="map"></div>
@@ -377,6 +357,7 @@
                 document.getElementById('log-modal').style.display = 'flex'; document.getElementById('log-input-text').value = ""; renderLogList(dbKey);
             };
             window.closeLogModal = function() { document.getElementById('log-modal').style.display = 'none'; window.currentLogDbKey = null; };
+            
             window.submitLog = function() {
                 if (!window.currentLogDbKey) return;
                 var text = document.getElementById('log-input-text').value.trim(); if (!text) { alert("수리/점검 내용을 입력해주세요."); return; }
@@ -386,13 +367,57 @@
                 }
             };
 
+            // ★ 일지 수정 기능
+            window.editLog = function(dbKey, logKey) {
+                var marker = markerLayers[dbKey];
+                if (!marker || !marker.logs || !marker.logs[logKey]) return;
+                
+                var oldText = marker.logs[logKey].text;
+                var inputPwd = prompt("일지를 수정하려면 관리자 비밀번호를 입력하세요:");
+                
+                if (inputPwd === ADMIN_PASSWORD) {
+                    var newText = prompt("수정할 내용을 입력하세요:", oldText);
+                    if (newText !== null && newText.trim() !== "") {
+                        database.ref('markers/' + dbKey + '/logs/' + logKey).update({ text: newText.trim() });
+                    }
+                } else if (inputPwd !== null) {
+                    alert("비밀번호가 일치하지 않습니다.");
+                }
+            };
+
+            // ★ 일지 삭제 기능
+            window.deleteLog = function(dbKey, logKey) {
+                var inputPwd = prompt("이 일지를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
+                if (inputPwd === ADMIN_PASSWORD) {
+                    database.ref('markers/' + dbKey + '/logs/' + logKey).remove();
+                } else if (inputPwd !== null) {
+                    alert("비밀번호가 일치하지 않습니다.");
+                }
+            };
+
+            // ★ 일지 리스트 렌더링 (수정/삭제 버튼 추가)
             function renderLogList(dbKey) {
                 var listDiv = document.getElementById('log-list'); listDiv.innerHTML = ""; var marker = markerLayers[dbKey];
                 if (!marker || !marker.logs) { listDiv.innerHTML = `<div class="log-empty">아직 기록된 점검/수리 이력이 없습니다.</div>`; return; }
-                var logKeys = Object.keys(marker.logs); logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
+                
+                var logKeys = Object.keys(marker.logs); 
+                logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
+                
                 logKeys.forEach(function(lk) {
                     var logData = marker.logs[lk];
-                    var itemHTML = `<div class="log-item"><div class="log-date">${logData.date}</div><div class="log-text">${logData.text.replace(/\n/g, '<br>')}</div></div>`;
+                    // 수정, 삭제 버튼이 포함된 HTML 추가
+                    var itemHTML = `
+                        <div class="log-item">
+                            <div class="log-date-row">
+                                <div class="log-date">${logData.date}</div>
+                                <div class="log-actions">
+                                    <button class="log-action-btn" onclick="editLog('${dbKey}', '${lk}')">✏️수정</button>
+                                    <button class="log-action-btn" onclick="deleteLog('${dbKey}', '${lk}')">🗑️삭제</button>
+                                </div>
+                            </div>
+                            <div class="log-text">${logData.text.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `;
                     listDiv.insertAdjacentHTML('beforeend', itemHTML);
                 });
             }
@@ -500,7 +525,10 @@
                         if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
                         marker.setIcon(icons[data.color]); marker.customColor = data.color; 
                         marker.logs = data.logs || null;
+                        
+                        // ★ 변경된 로그 실시간 렌더링
                         if (window.currentLogDbKey === snapshot.key) { renderLogList(snapshot.key); }
+                        
                         var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
                         if (activeTextDiv && document.activeElement !== activeTextDiv) { activeTextDiv.innerText = data.text; }
                         refreshMarkersDisplay(); 
