@@ -5,7 +5,7 @@
     <title>스마트파인 - 양지파인리조트 관제</title>
     
     <!-- 모바일 화면 절대 잠금 (어떤 브라우저든 맘대로 축소/확대 불가) -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="스마트파인"> 
@@ -32,7 +32,7 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        /* ★ 해결의 핵심: 브라우저가 글씨 크기를 맘대로 주무르지 못하게 100%로 강제 고정 */
+        /* 기본 폰트 강제 유지 */
         html, body { 
             width: 100%; height: 100%; 
             margin: 0; padding: 0; overflow: hidden; 
@@ -40,88 +40,88 @@
             word-break: keep-all; 
             overflow-wrap: break-word; 
             letter-spacing: -0.3px; 
-            -webkit-text-size-adjust: 100% !important; /* 크롬 vs 네이버 차이 완벽 해결 */
+            -webkit-text-size-adjust: 100% !important; 
             -moz-text-size-adjust: 100% !important;
             text-size-adjust: 100% !important;
         }
         #map { height: 100%; width: 100%; }
         
         /* ----------------------------------------------------
-           PC 및 기본 디자인 (깔끔하고 세련되게)
+           PC 및 태블릿 가로 모드 (기본 디자인)
            ---------------------------------------------------- */
         .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
         .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; }
         .filter-item:active { transform: scale(0.9); }
         .filter-item.off { opacity: 0.35; filter: grayscale(80%); }
         .filter-dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 16px; }
-        .filter-text { font-size: 13px; font-weight: 700; color: #1e293b; white-space: nowrap; }
+        .filter-text { font-size: 14px; font-weight: 800; color: #1e293b; white-space: nowrap; }
 
-        .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 350px; box-sizing: border-box; transition: opacity 0.2s; }
+        .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); width: 360px; box-sizing: border-box; transition: opacity 0.2s; }
         .close-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; font-size: 16px; color: #475569; background: #f1f5f9; border-radius: 50%; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 1001; }
         .close-btn:hover { background: #e2e8f0; color: #0f172a; transform: scale(1.1); }
 
-        .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
+        .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 12px 18px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); font-weight: 800; font-size: 15px; color: #1a202c; cursor: pointer; display: none; align-items: center; }
         
         .brand-logo { text-align: center; margin-bottom: 12px; margin-top: 2px; }
-        .brand-logo img { max-height: 42px; width: auto; }
-        .panel-title { margin: 0 0 16px 0; color: #1e293b; font-size: 17px; font-weight: 800; text-align: center; letter-spacing: -0.5px; }
+        .brand-logo img { max-height: 46px; width: auto; }
+        .panel-title { margin: 0 0 16px 0; color: #1e293b; font-size: 18px; font-weight: 900; text-align: center; letter-spacing: -0.5px; }
 
         .weather-widget { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-        .weather-date { font-size: 13px; color: #475569; font-weight: 600; }
-        .weather-info { font-size: 14px; color: #0f172a; font-weight: 700; background: #ffffff; padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 4px; }
+        .weather-date { font-size: 14px; color: #475569; font-weight: 700; }
+        .weather-info { font-size: 15px; color: #0f172a; font-weight: 800; background: #ffffff; padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 4px; }
 
         .search-box { display: flex; margin-bottom: 18px; gap: 8px; }
-        .search-box input { flex: 1; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; transition: border 0.2s;}
+        .search-box input { flex: 1; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; font-family: inherit; outline: none; transition: border 0.2s;}
         .search-box input:focus { border-color: #3b82f6; }
-        .search-box button { padding: 0 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
+        .search-box button { padding: 0 18px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; white-space: nowrap;}
         .search-box button:hover { background: #2563eb; }
 
         .legend-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 14px 16px; border-radius: 10px; margin-bottom: 18px; border: 1px solid #edf2f7; }
-        .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; color: #475569; white-space: nowrap; }
+        .legend-item { display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #475569; white-space: nowrap; }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .dot-blue { background-color: #3b82f6; } .dot-red { background-color: #ef4444; } .dot-orange { background-color: #f97316; } .dot-green { background-color: #22c55e; } .dot-lamp { background-color: #1e293b; color: white; }
         
         .action-btns { display: flex; gap: 10px; margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 18px; }
-        .action-btn { flex: 1; padding: 12px 0; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .action-btn { flex: 1; padding: 14px 0; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .action-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); }
         .btn-excel { background-color: #10b981; } .btn-print { background-color: #475569; }
 
-        .guide-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #334155; line-height: 1.6; }
-        .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; }
-        .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 16px; }
+        .guide-list { margin: 0; padding: 0; list-style: none; font-size: 14px; color: #334155; line-height: 1.6; }
+        .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; font-weight: 500;}
+        .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 18px; }
 
-        /* 마커 툴팁 캡슐형 (PC) */
-        .custom-tooltip { background: rgba(15, 23, 42, 0.85); border: none !important; color: white; font-weight: 700; border-radius: 30px !important; font-size: 14px; padding: 4px 12px !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.5px; }
+        /* PC 마커 툴팁 및 팝업 글씨도 더 크고 또렷하게 상향 조정! */
+        .custom-tooltip { background: rgba(15, 23, 42, 0.85); border: none !important; color: white; font-weight: 800; border-radius: 30px !important; font-size: 16px !important; padding: 6px 14px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.5px; }
         .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { display: none !important; }
 
-        .editable-popup { font-weight: 700; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 15px; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
+        .editable-popup { font-weight: 800; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 17px !important; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
         
-        .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 14px 24px; border-radius: 30px; font-size: 15px; font-weight: 700; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+        .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 16px 26px; border-radius: 30px; font-size: 16px; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
         .log-modal { background: white; width: 90%; max-width: 400px; border-radius: 12px; display: flex; flex-direction: column; max-height: 80vh; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .log-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .log-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0; }
-        .log-close { width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; border: none; font-size: 16px; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .log-title { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0; }
+        .log-close { width: 34px; height: 34px; background: #e2e8f0; border-radius: 50%; border: none; font-size: 18px; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
         .log-body { padding: 15px; overflow-y: auto; flex: 1; background: #f1f5f9; }
         .log-list { display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
         .log-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px; }
-        .log-date { font-size: 12px; color: #64748b; font-weight: 600; }
+        .log-date { font-size: 13px; color: #64748b; font-weight: 700; }
         .log-actions { display: flex; gap: 6px; }
-        .log-action-btn { background: #f8fafc; border: 1px solid #e2e8f0; font-size: 11px; font-weight: 600; color: #475569; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; gap: 3px; }
+        .log-action-btn { background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; gap: 3px; }
         .log-action-btn:hover { background: #e2e8f0; color: #1e293b; }
         
-        .log-text { font-size: 13px; color: #334155; line-height: 1.5; word-break: break-word; }
+        .log-text { font-size: 14px; color: #334155; line-height: 1.5; word-break: break-word; font-weight: 500; }
         .log-footer { padding: 15px; background: white; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
-        .log-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; resize: none; font-family: inherit; outline: none; box-sizing: border-box; }
-        .log-submit-btn { background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
+        .log-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; resize: none; font-family: inherit; outline: none; box-sizing: border-box; }
+        .log-submit-btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; }
         
-        .btn-log-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; width: 100%; padding: 8px; margin-top: 8px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; }
-        .btn-yustel { background: #f39c12; color: white; border: none; width: 100%; padding: 8px; margin-top: 6px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 5px rgba(243,156,18,0.3); }
-        .btn-condo { background: #0ea5e9; color: white; border: none; width: 100%; padding: 8px; margin-top: 6px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 5px rgba(14,165,233,0.3); }
+        .btn-log-open { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; }
+        .btn-yustel { background: #f39c12; color: white; border: none; width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 2px 5px rgba(243,156,18,0.3); }
+        .btn-condo { background: #0ea5e9; color: white; border: none; width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 2px 5px rgba(14,165,233,0.3); }
 
         .otter-div-icon { background: transparent; border: none; }
         .otter-pop-container { display: flex; flex-direction: column; align-items: center; animation: popUp 0.5s forwards, bobbing 2s infinite ease-in-out 0.5s; cursor: pointer; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
@@ -132,63 +132,66 @@
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
         /* ----------------------------------------------------
-           모바일 전용 최적화 (황금 비율의 편안한 사이즈)
+           ★ 모바일 전용 초강력 강제 확대 모드 (해상도 1024px 이하 전부 적용)
+           이제 크롬에서 아무리 데스크톱 모드로 띄우려고 해도 
+           아래의 왕건이(초대형) UI가 무조건 강제로 덮어씌워집니다!
            ---------------------------------------------------- */
-        @media (max-width: 600px) {
+        @media (max-width: 1024px) {
             
             .filter-panel { top: 10px; padding: 12px 18px; gap: 14px; border-radius: 25px; width: auto; max-width: 95%; }
-            .filter-dot { width: 36px; height: 36px; font-size: 18px; } 
-            .filter-text { font-size: 14px !important; font-weight: 800 !important; } 
+            .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
+            .filter-text { font-size: 15px !important; font-weight: 900 !important; } 
             
-            .info-panel { top: auto; bottom: 85px; right: 10px; left: 10px; width: auto; max-width: none; padding: 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.18); border-radius: 18px; }
-            .close-btn { top: -14px; right: -8px; width: 44px; height: 44px; font-size: 20px; background: #1e293b; color: #ffffff; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+            /* 설명창 무조건 하단 고정 */
+            .info-panel { top: auto !important; bottom: 85px !important; right: 10px !important; left: 10px !important; width: auto !important; max-width: none !important; padding: 20px 18px !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.18) !important; border-radius: 18px !important; }
+            .close-btn { top: -14px !important; right: -8px !important; width: 44px !important; height: 44px !important; font-size: 20px !important; background: #1e293b !important; color: #ffffff !important; border: 3px solid #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important; }
 
-            .panel-title { font-size: 18px !important; margin-bottom: 15px; margin-top: 2px; } 
-            .weather-widget { padding: 14px; margin-bottom: 15px; }
-            .weather-date { font-size: 14px !important; } 
-            .weather-info { font-size: 15px !important; padding: 8px 14px; } 
+            .panel-title { font-size: 20px !important; margin-bottom: 15px !important; margin-top: 2px !important; } 
+            .weather-widget { padding: 14px !important; margin-bottom: 15px !important; }
+            .weather-date { font-size: 15px !important; } 
+            .weather-info { font-size: 16px !important; padding: 8px 14px !important; } 
             
-            .search-box input { font-size: 15px !important; padding: 14px; } 
-            .search-box button { font-size: 15px !important; padding: 0 20px; } 
+            .search-box input { font-size: 16px !important; padding: 14px !important; } 
+            .search-box button { font-size: 16px !important; padding: 0 20px !important; } 
             
-            .legend-box { padding: 15px; gap: 10px; } 
-            .legend-item { font-size: 14.5px !important; font-weight: 700 !important; } 
-            .legend-lamp-box { font-size: 14.5px !important; font-weight: 700 !important; padding: 12px; }
+            .legend-box { padding: 15px !important; gap: 10px !important; } 
+            .legend-item { font-size: 15px !important; font-weight: 800 !important; } 
+            .legend-lamp-box { font-size: 15px !important; font-weight: 800 !important; padding: 12px !important; }
             
-            .guide-list { font-size: 14.5px !important; line-height: 1.6; margin-bottom: 14px; font-weight: 500; } 
-            .guide-list li { margin-bottom: 8px; padding-left: 20px; }
-            .guide-list li::before { font-size: 18px; top: -1px; }
+            .guide-list { font-size: 16px !important; line-height: 1.6 !important; margin-bottom: 14px !important; font-weight: 600 !important; } 
+            .guide-list li { margin-bottom: 8px !important; padding-left: 20px !important; }
+            .guide-list li::before { font-size: 20px !important; top: -1px !important; }
 
-            .action-btn { font-size: 16px !important; padding: 15px 0; border-radius: 10px; } 
+            .action-btn { font-size: 17px !important; padding: 15px 0 !important; border-radius: 10px !important; } 
             
-            .info-toggle-btn { top: auto; bottom: 90px; right: 15px; padding: 14px 24px; border-radius: 30px; font-size: 16px !important; font-weight: 800 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-            .voice-fab { bottom: 20px; font-size: 16px !important; font-weight: 800 !important; padding: 15px 22px; width: 90%; justify-content: center; border-radius: 40px; } 
+            .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important; }
+            .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; border-radius: 40px !important; } 
             
-            /* ★ 마커(툴팁) 및 팝업창 황금 비율 사이즈 (크롬/네이버 완벽 호환) */
+            /* ★ 마커(툴팁) 및 팝업창 황금 비율 초대형 사이즈 (크롬 완벽 제압) */
             div.leaflet-tooltip.custom-tooltip { 
-                font-size: 15px !important; 
-                padding: 6px 14px !important; 
+                font-size: 18px !important; 
+                padding: 8px 16px !important; 
                 border-radius: 30px !important; 
-                font-weight: 800 !important; 
+                font-weight: 900 !important; 
                 letter-spacing: -0.5px !important;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
             }
             .leaflet-popup-content .editable-popup { 
-                font-size: 17px !important; 
-                padding: 14px !important; 
-                font-weight: 800 !important; 
+                font-size: 20px !important; 
+                padding: 16px !important; 
+                font-weight: 900 !important; 
                 width: 100% !important;
-                box-sizing: border-box;
+                box-sizing: border-box !important;
                 line-height: 1.3 !important;
             }
             
             /* 일지 모달창 사이즈 최적화 */
-            .log-title { font-size: 17px !important; }
-            .log-action-btn { font-size: 13.5px !important; padding: 8px 12px; } 
-            .log-date { font-size: 13.5px !important; }
-            .log-text { font-size: 15px !important; font-weight: 500; line-height: 1.6 !important; }
-            .log-input { font-size: 15px !important; padding: 14px; }
-            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 15px !important; padding: 14px; font-weight: 700 !important; }
+            .log-title { font-size: 18px !important; font-weight: 900 !important;}
+            .log-action-btn { font-size: 14px !important; padding: 8px 12px !important; } 
+            .log-date { font-size: 14px !important; font-weight: 700 !important; }
+            .log-text { font-size: 16px !important; font-weight: 600 !important; line-height: 1.6 !important; }
+            .log-input { font-size: 16px !important; padding: 16px !important; }
+            .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 16px !important; padding: 16px !important; font-weight: 800 !important; }
         }
 
         @media print {
