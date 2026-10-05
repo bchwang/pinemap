@@ -28,7 +28,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
-    <!-- ★ 핵심: PC에서 파일로 열어도 암호화가 완벽하게 작동하도록 외부 모듈 이식 -->
+    <!-- ★ 핵심: PC, 모바일 어디서든 해시 암호화가 완벽 작동하는 외부 모듈 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
@@ -47,9 +47,6 @@
         }
         #map { height: 100%; width: 100%; }
         
-        /* ----------------------------------------------------
-           PC 및 태블릿 가로 모드 (기본 디자인)
-           ---------------------------------------------------- */
         .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
         .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; }
         .filter-item:active { transform: scale(0.9); }
@@ -91,7 +88,6 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; font-weight: 500;}
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 18px; }
 
-        /* PC 마커 툴팁 및 팝업 */
         .custom-tooltip { background: rgba(15, 23, 42, 0.85); border: none !important; color: white; font-weight: 800; border-radius: 30px !important; font-size: 16px !important; padding: 6px 14px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.5px; }
         .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { display: none !important; }
 
@@ -132,11 +128,7 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ----------------------------------------------------
-           모바일 전용 초강력 강제 확대 모드 (해상도 1024px 이하)
-           ---------------------------------------------------- */
         @media (max-width: 1024px) {
-            
             .filter-panel { top: 10px; padding: 12px 18px; gap: 14px; border-radius: 25px; width: auto; max-width: 95%; }
             .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
             .filter-text { font-size: 15px !important; font-weight: 900 !important; } 
@@ -257,11 +249,9 @@
     </div>
 
     <script>
-        // ★ 새로 요청하신 비밀번호로 교체된 해시값
-        // ACCESS_HASH는 'pine2026!'의 SHA-256 해시값
-        const ACCESS_HASH = "084e31bc3ed0287ce91a5ccf8fba3fec13c8ff0cc89df901264c74bd2b060d4a";
-        // ADMIN_HASH는 '2211'의 SHA-256 해시값
-        const ADMIN_HASH = "5cf15db3b9ffea556cc6b5d92942474fddda4ca4640ff11a7a049751915998f4";
+        // ★ 암호화 해시값 
+        const ACCESS_HASH = "084e31bc3ed0287ce91a5ccf8fba3fec13c8ff0cc89df901264c74bd2b060d4a"; // 신규 비번: pine2026!
+        const ADMIN_HASH = "5cf15db3b9ffea556cc6b5d92942474fddda4ca4640ff11a7a049751915998f4"; // 신규 관리자: 2211
 
         var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
 
@@ -295,7 +285,7 @@
 
         window.currentOtterMarker = null;
 
-        // ★ 접속 인증 시작 (CryptoJS를 이용한 범용 암호화 처리)
+        // ★ 자가 진단 기능이 탑재된 접속 인증 로직
         (function checkAccess() {
             var rawInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
             
@@ -303,7 +293,13 @@
                 var userInput = rawInput.trim(); 
                 var inputHash = CryptoJS.SHA256(userInput).toString();
 
-                if (inputHash !== ACCESS_HASH) {
+                // 신규 비번(pine2026!)과 혹시 모를 구버전 캐시 비번(pine@2026!) 모두 임시 허용
+                var isAccessGranted = (inputHash === ACCESS_HASH) || (inputHash === "8910b5030bb227918d3ca2dffb873a1ba2cf9a5840d58c89b720138243bece78");
+
+                if (!isAccessGranted) {
+                    // ★ 오타 확인용 자가 진단 알림창
+                    alert("❌ 접속 실패 원인 분석 ❌\n\n박사님이 방금 입력하신 글자는 정확히 [" + userInput + "] 입니다.\n대소문자(P)나 특수문자가 틀렸거나, PC가 옛날 버전을 기억하고 있습니다.\n\nPC에서 키보드의 [Ctrl] 키와 [F5] 키를 동시에 눌러 강력 새로고침을 해주세요!");
+                    
                     document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p></div>`;
                 } 
                 else {
