@@ -90,7 +90,7 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; font-weight: 500;}
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 18px; }
 
-        /* PC 마커 툴팁 및 팝업 글씨도 더 크고 또렷하게 상향 조정! */
+        /* PC 마커 툴팁 및 팝업 */
         .custom-tooltip { background: rgba(15, 23, 42, 0.85); border: none !important; color: white; font-weight: 800; border-radius: 30px !important; font-size: 16px !important; padding: 6px 14px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.5px; }
         .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { display: none !important; }
 
@@ -132,9 +132,7 @@
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
         /* ----------------------------------------------------
-           ★ 모바일 전용 초강력 강제 확대 모드 (해상도 1024px 이하 전부 적용)
-           이제 크롬에서 아무리 데스크톱 모드로 띄우려고 해도 
-           아래의 왕건이(초대형) UI가 무조건 강제로 덮어씌워집니다!
+           모바일 전용 초강력 강제 확대 모드 (해상도 1024px 이하)
            ---------------------------------------------------- */
         @media (max-width: 1024px) {
             
@@ -142,7 +140,6 @@
             .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
             .filter-text { font-size: 15px !important; font-weight: 900 !important; } 
             
-            /* 설명창 무조건 하단 고정 */
             .info-panel { top: auto !important; bottom: 85px !important; right: 10px !important; left: 10px !important; width: auto !important; max-width: none !important; padding: 20px 18px !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.18) !important; border-radius: 18px !important; }
             .close-btn { top: -14px !important; right: -8px !important; width: 44px !important; height: 44px !important; font-size: 20px !important; background: #1e293b !important; color: #ffffff !important; border: 3px solid #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important; }
 
@@ -167,7 +164,6 @@
             .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important; }
             .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; border-radius: 40px !important; } 
             
-            /* ★ 마커(툴팁) 및 팝업창 황금 비율 초대형 사이즈 (크롬 완벽 제압) */
             div.leaflet-tooltip.custom-tooltip { 
                 font-size: 18px !important; 
                 padding: 8px 16px !important; 
@@ -185,7 +181,6 @@
                 line-height: 1.3 !important;
             }
             
-            /* 일지 모달창 사이즈 최적화 */
             .log-title { font-size: 18px !important; font-weight: 900 !important;}
             .log-action-btn { font-size: 14px !important; padding: 8px 12px !important; } 
             .log-date { font-size: 14px !important; font-weight: 700 !important; }
@@ -216,7 +211,7 @@
     <div id="map"></div>
     
     <button id="voice-btn" class="voice-fab" onclick="startVoiceMarker()">🎙️ 현위치 음성 마킹</button>
-    <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️ 메뉴 열기</div>
+    <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️️ 메뉴 열기</div>
 
     <div id="info-panel" class="info-panel">
         <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
@@ -242,7 +237,7 @@
 
         <div class="action-btns">
             <button class="action-btn btn-excel" onclick="downloadExcel()">📊 엑셀 저장</button>
-            <button class="action-btn btn-print" onclick="window.print()">🖨️ 맵 인쇄</button>
+            <button class="action-btn btn-print" onclick="window.print()">🖨 맵 인쇄</button>
         </div>
     </div>
 
@@ -261,6 +256,20 @@
     </div>
 
     <script>
+        // ★ SHA-256 해시 함수 (브라우저 표준 암호화 라이브러리 사용)
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ★ 새로 요청하신 비밀번호로 교체된 해시값
+        // ACCESS_HASH는 'pine2026!'의 SHA-256 해시값
+        const ACCESS_HASH = "084e31bc3ed0287ce91a5ccf8fba3fec13c8ff0cc89df901264c74bd2b060d4a";
+        // ADMIN_HASH는 '2211'의 SHA-256 해시값
+        const ADMIN_HASH = "5cf15db3b9ffea556cc6b5d92942474fddda4ca4640ff11a7a049751915998f4";
+
         var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
 
         function toggleFilter(colorGroup) {
@@ -292,15 +301,21 @@
         }
 
         window.currentOtterMarker = null;
-        var ACCESS_PASSWORD = "pine@2026!"; 
-        var ADMIN_PASSWORD = "1122";  
 
-        var userInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
+        // ★ 접속 인증 시작
+        (async function checkAccess() {
+            var userInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
+            var inputHash = userInput ? await sha256(userInput) : "";
 
-        if (userInput !== ACCESS_PASSWORD) {
-            document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p></div>`;
-        } 
-        else {
+            if (inputHash !== ACCESS_HASH) {
+                document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p></div>`;
+            } 
+            else {
+                initApp();
+            }
+        })();
+
+        function initApp() {
             updateDateAndWeather(); 
 
             const firebaseConfig = {
@@ -397,7 +412,7 @@
                 for (var key in markerLayers) {
                     if ((markerLayers[key].getTooltip().getContent() || "").includes(keyword)) {
                         map.setView(markerLayers[key].getLatLng(), 20); markerLayers[key].openPopup();
-                        if(window.innerWidth <= 600) togglePanel(); return; 
+                        if(window.innerWidth <= 1024) togglePanel(); return; 
                     }
                 }
                 alert("'" + keyword + "' 지점을 찾을 수 없습니다.");
@@ -418,21 +433,27 @@
                 }
             };
 
-            window.editLog = function(dbKey, logKey) {
+            window.editLog = async function(dbKey, logKey) {
                 var marker = markerLayers[dbKey];
                 if (!marker || !marker.logs || !marker.logs[logKey]) return;
                 var oldText = marker.logs[logKey].text;
                 var inputPwd = prompt("일지를 수정하려면 관리자 비밀번호를 입력하세요:");
-                if (inputPwd === ADMIN_PASSWORD) {
-                    var newText = prompt("수정할 내용을 입력하세요:", oldText);
-                    if (newText !== null && newText.trim() !== "") { database.ref('markers/' + dbKey + '/logs/' + logKey).update({ text: newText.trim() }); }
-                } else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
+                if (inputPwd !== null) {
+                    var hash = await sha256(inputPwd);
+                    if (hash === ADMIN_HASH) {
+                        var newText = prompt("수정할 내용을 입력하세요:", oldText);
+                        if (newText !== null && newText.trim() !== "") { database.ref('markers/' + dbKey + '/logs/' + logKey).update({ text: newText.trim() }); }
+                    } else { alert("비밀번호가 일치하지 않습니다."); }
+                }
             };
 
-            window.deleteLog = function(dbKey, logKey) {
+            window.deleteLog = async function(dbKey, logKey) {
                 var inputPwd = prompt("이 일지를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                if (inputPwd === ADMIN_PASSWORD) { database.ref('markers/' + dbKey + '/logs/' + logKey).remove(); } 
-                else if (inputPwd !== null) { alert("비밀번호가 일치하지 않습니다."); }
+                if (inputPwd !== null) {
+                    var hash = await sha256(inputPwd);
+                    if (hash === ADMIN_HASH) { database.ref('markers/' + dbKey + '/logs/' + logKey).remove(); } 
+                    else { alert("비밀번호가 일치하지 않습니다."); }
+                }
             };
 
             function renderLogList(dbKey) {
@@ -511,7 +532,14 @@
                 var actionDiv = document.createElement('div'); actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
                 var logBtn = document.createElement('button'); logBtn.className = 'btn-log-open'; logBtn.innerText = "📝 점검 및 수리 일지 보기"; logBtn.onclick = function() { openLogModal(dbKey, marker.getTooltip().getContent()); marker.closePopup(); };
                 var moveBtn = document.createElement('button'); moveBtn.innerText = "🔒 위치 이동 (잠금해제)"; moveBtn.style.padding = "8px"; moveBtn.style.marginTop = "8px"; moveBtn.style.fontSize = "13px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%";
-                moveBtn.onclick = function() { var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:"); if (inputPwd === ADMIN_PASSWORD) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } else if (inputPwd !== null) { alert("비밀번호 불일치."); } };
+                moveBtn.onclick = async function() { 
+                    var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:"); 
+                    if (inputPwd !== null) {
+                        var hash = await sha256(inputPwd);
+                        if (hash === ADMIN_HASH) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } 
+                        else { alert("비밀번호 불일치."); } 
+                    }
+                };
                 
                 actionDiv.appendChild(logBtn);
                 
@@ -535,9 +563,13 @@
                     if(database) database.ref('markers/' + dbKey).update({ lat: marker.getLatLng().lat, lng: marker.getLatLng().lng });
                     marker.dragging.disable(); alert("위치 변경 완료.");
                 });
-                marker.on('contextmenu', function(e) {
+                marker.on('contextmenu', async function(e) {
                     var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                    if (inputPwd === ADMIN_PASSWORD) { if(database) database.ref('markers/' + dbKey).remove(); } else if (inputPwd !== null) { alert("비밀번호 불일치."); }
+                    if (inputPwd !== null) {
+                        var hash = await sha256(inputPwd);
+                        if (hash === ADMIN_HASH) { if(database) database.ref('markers/' + dbKey).remove(); } 
+                        else { alert("비밀번호 불일치."); }
+                    }
                 });
 
                 markerLayers[dbKey] = marker;
@@ -585,7 +617,7 @@
                     database.ref('markers').push().set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
                 }
             });
-        } 
+        }
     </script>
 </body>
 </html>
