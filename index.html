@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="스마트파인"> 
+    <meta name="application-name" content="스마트파인"> 
+    <meta name="theme-color" content="#1e293b">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -29,14 +32,16 @@
             background-color: #f1f5f9;
         }
         
-        #app-container { display: none; width: 100%; height: 100%; }
-        #map { height: 100%; width: 100%; }
+        #app-container { display: none; width: 100%; height: 100%; position: relative; }
+        #map { height: 100%; width: 100%; z-index: 1; }
         
-        .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
-        .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; }
+        /* ★ 필터 버튼 클릭 복구를 위해 z-index를 대폭 높이고 포인터 이벤트 강제 활성화 */
+        .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); pointer-events: auto; }
+        .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; pointer-events: auto; }
+        .filter-item:active { transform: scale(0.9); }
         .filter-item.off { opacity: 0.35; filter: grayscale(80%); }
-        .filter-dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 16px; }
-        .filter-text { font-size: 14px; font-weight: 800; color: #1e293b; white-space: nowrap; }
+        .filter-dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 16px; pointer-events: none; }
+        .filter-text { font-size: 14px; font-weight: 800; color: #1e293b; white-space: nowrap; pointer-events: none; }
 
         .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); width: 360px; box-sizing: border-box; }
         .close-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; font-size: 16px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1001; }
@@ -96,7 +101,7 @@
         .btn-condo { background: #0ea5e9; color: white; border: none; width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; font-weight: 800; font-size: 14px; cursor: pointer; }
 
         @media (max-width: 1024px) {
-            .filter-panel { top: 10px; padding: 12px 18px; gap: 14px; width: auto; max-width: 95%; }
+            .filter-panel { top: 10px; padding: 12px 18px; gap: 14px; width: auto; max-width: 95%; z-index: 9999; }
             .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
             .filter-text { font-size: 15px !important; font-weight: 900 !important; } 
             
@@ -120,8 +125,8 @@
 
             .action-btn { font-size: 17px !important; padding: 15px 0 !important; } 
             
-            .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; font-size: 17px !important; font-weight: 900 !important; }
-            .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; } 
+            .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; font-size: 17px !important; font-weight: 900 !important; z-index: 1000; }
+            .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; z-index: 1000; } 
             
             div.leaflet-tooltip.custom-tooltip { font-size: 18px !important; padding: 8px 16px !important; font-weight: 600 !important; }
             .leaflet-popup-content .editable-popup { font-size: 20px !important; padding: 16px !important; font-weight: 700 !important; width: 100% !important; box-sizing: border-box !important; }
@@ -138,6 +143,8 @@
 <body>
     
     <div id="app-container">
+        
+        <!-- ★ 필터 패널의 클릭 이벤트를 살리기 위해 구조 독립 및 이벤트 직접 연결 확인 -->
         <div class="filter-panel" id="filter-panel">
             <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')"><div class="filter-dot dot-blue"></div><div class="filter-text">시설</div></div>
             <div class="filter-item" id="filter-red" onclick="toggleFilter('red')"><div class="filter-dot dot-red"></div><div class="filter-text">안전</div></div>
@@ -149,7 +156,7 @@
         <div id="map"></div>
         
         <button id="voice-btn" class="voice-fab" onclick="startVoiceMarker()">🎙️ 현위치 음성 마킹</button>
-        <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️️ 메뉴 열기</div>
+        <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺 메뉴 열기</div>
 
         <div id="info-panel" class="info-panel">
             <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
@@ -229,19 +236,29 @@
             }
         }
 
-        function toggleFilter(colorGroup) {
+        // ★ 필터 토글 함수 강제 활성화 (이벤트가 지도 계층을 뚫고 작동하도록 구성)
+        window.toggleFilter = function(colorGroup) {
             activeFilters[colorGroup] = !activeFilters[colorGroup]; 
             var btn = document.getElementById('filter-' + colorGroup);
-            if (activeFilters[colorGroup]) { btn.classList.remove('off'); } else { btn.classList.add('off'); }
+            if (activeFilters[colorGroup]) { 
+                btn.classList.remove('off'); 
+            } else { 
+                btn.classList.add('off'); 
+            }
             refreshMarkersDisplay();
-        }
+        };
 
         function refreshMarkersDisplay() {
-            for (var key in markerLayers) {
-                var marker = markerLayers[key]; var c = marker.customColor;
+            for (var key in window.markerLayers) {
+                var marker = window.markerLayers[key]; 
+                var c = marker.customColor;
                 var group = (c === 'lamp-on' || c === 'lamp-off') ? 'lamp' : c;
-                if (activeFilters[group]) { if (!markersGroup.hasLayer(marker)) { markersGroup.addLayer(marker); } } 
-                else { if (markersGroup.hasLayer(marker)) { markersGroup.removeLayer(marker); } }
+                
+                if (activeFilters[group]) { 
+                    if (!markersGroup.hasLayer(marker)) { markersGroup.addLayer(marker); } 
+                } else { 
+                    if (markersGroup.hasLayer(marker)) { markersGroup.removeLayer(marker); } 
+                }
             }
         }
 
@@ -319,7 +336,7 @@
                 'lamp-off': lampOffIcon, 'lamp-on': lampOnIcon
             };
 
-            var markersGroup = L.layerGroup().addTo(map); 
+            window.markersGroup = L.layerGroup().addTo(map); 
             window.markerLayers = {}; 
 
             window.downloadExcel = function() {
@@ -530,7 +547,7 @@
                 window.markerLayers[dbKey] = marker;
                 
                 var group = (colorType === 'lamp-on' || colorType === 'lamp-off') ? 'lamp' : colorType;
-                if (activeFilters[group]) { markersGroup.addLayer(marker); }
+                if (activeFilters[group]) { window.markersGroup.addLayer(marker); }
             }
 
             if(database) {
@@ -560,7 +577,7 @@
                     var marker = window.markerLayers[snapshot.key];
                     if (marker) {
                         if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) { map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null; }
-                        markersGroup.removeLayer(marker); delete window.markerLayers[snapshot.key];
+                        window.markersGroup.removeLayer(marker); delete window.markerLayers[snapshot.key];
                     }
                 });
             }
