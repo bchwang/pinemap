@@ -44,9 +44,6 @@
         }
         #map { height: 100%; width: 100%; }
         
-        /* ----------------------------------------------------
-           PC 및 태블릿 가로 모드 (기본 디자인)
-           ---------------------------------------------------- */
         .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
         .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; }
         .filter-item:active { transform: scale(0.9); }
@@ -88,11 +85,35 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; font-weight: 500;}
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 18px; }
 
-        /* PC 마커 툴팁 및 팝업 */
-        .custom-tooltip { background: rgba(15, 23, 42, 0.85); border: none !important; color: white; font-weight: 800; border-radius: 30px !important; font-size: 16px !important; padding: 6px 14px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.5px; }
+        /* ★ PC 마커 툴팁 및 팝업 (두께를 슬림하게, 누끼 배경을 반투명하게 변경) */
+        .custom-tooltip { 
+            background: rgba(15, 23, 42, 0.6) !important; /* 까만 배경을 은은한 반투명으로 변경 */
+            border: none !important; 
+            color: white; 
+            font-weight: 500 !important; /* PC 글씨를 슬림하게 (800 -> 500) */
+            border-radius: 30px !important; 
+            font-size: 15px !important; 
+            padding: 6px 14px !important; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; 
+            backdrop-filter: blur(4px); 
+            white-space: nowrap; 
+            letter-spacing: -0.3px; 
+        }
         .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { display: none !important; }
 
-        .editable-popup { font-weight: 800; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 17px !important; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
+        .editable-popup { 
+            font-weight: 600 !important; /* 팝업 내용도 슬림하게 (800 -> 600) */
+            padding: 10px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 8px; 
+            outline: none; 
+            min-width: 150px; 
+            text-align: center; 
+            font-size: 16px !important; 
+            color: #1e293b; 
+            transition: border-color 0.2s; 
+            letter-spacing: 0px; 
+        }
         
         .voice-fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background-color: #8b5cf6; color: white; padding: 16px 26px; border-radius: 30px; font-size: 16px; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         
@@ -129,11 +150,7 @@
         .otter-speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #3b82f6 transparent transparent transparent; }
         .otter-speech-bubble::before { content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: white transparent transparent transparent; z-index: 1; }
 
-        /* ----------------------------------------------------
-           모바일 전용 초강력 강제 확대 모드 (해상도 1024px 이하)
-           ---------------------------------------------------- */
         @media (max-width: 1024px) {
-            
             .filter-panel { top: 10px; padding: 12px 18px; gap: 14px; border-radius: 25px; width: auto; max-width: 95%; }
             .filter-dot { width: 38px; height: 38px; font-size: 20px; } 
             .filter-text { font-size: 15px !important; font-weight: 900 !important; } 
@@ -162,18 +179,18 @@
             .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important; }
             .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; border-radius: 40px !important; } 
             
+            /* 모바일에서도 슬림함 유지 및 투명도 반영 */
             div.leaflet-tooltip.custom-tooltip { 
                 font-size: 18px !important; 
                 padding: 8px 16px !important; 
-                border-radius: 30px !important; 
-                font-weight: 900 !important; 
+                font-weight: 600 !important; /* 모바일에서도 약간 슬림하게 */
                 letter-spacing: -0.5px !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
             }
             .leaflet-popup-content .editable-popup { 
                 font-size: 20px !important; 
                 padding: 16px !important; 
-                font-weight: 900 !important; 
+                font-weight: 700 !important; 
                 width: 100% !important;
                 box-sizing: border-box !important;
                 line-height: 1.3 !important;
@@ -254,9 +271,16 @@
     </div>
 
     <script>
-        // ★ 브라우저 자체 내장 인코딩 (외부 프로그램 삭제로 오류 확률 0%)
-        const ACCESS_KEY = "cGluZTIwMjYh"; // pine2026!
-        const ADMIN_KEY = "MjIxMQ=="; // 2211
+        // 암호화 로직
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        const ACCESS_HASH = "084e31bc3ed0287ce91a5ccf8fba3fec13c8ff0cc89df901264c74bd2b060d4a";
+        const ADMIN_HASH = "5cf15db3b9ffea556cc6b5d92942474fddda4ca4640ff11a7a049751915998f4";
 
         var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
 
@@ -290,21 +314,14 @@
 
         window.currentOtterMarker = null;
 
-        // ★ 접속 인증 (가장 안정적인 브라우저 기본 기능으로 교체)
-        (function checkAccess() {
+        (async function checkAccess() {
             var rawInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
             
             if (rawInput !== null) {
                 var userInput = rawInput.trim(); 
-                var inputKey = "";
-                
-                try { 
-                    inputKey = btoa(userInput); // 입력값을 안전 문자로 자동 변환
-                } catch(e) { 
-                    inputKey = "invalid"; // 특수문자나 한글 오타 발생 시 방어
-                }
+                var inputHash = await sha256(userInput);
 
-                if (inputKey !== ACCESS_KEY) {
+                if (inputHash !== ACCESS_HASH) {
                     document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>새로고침(F5)하여 다시 시도해주세요.</p></div>`;
                 } 
                 else {
@@ -431,30 +448,26 @@
                 }
             };
 
-            window.editLog = function(dbKey, logKey) {
+            window.editLog = async function(dbKey, logKey) {
                 var marker = markerLayers[dbKey];
                 if (!marker || !marker.logs || !marker.logs[logKey]) return;
                 var oldText = marker.logs[logKey].text;
                 
                 var inputPwd = prompt("일지를 수정하려면 관리자 비밀번호를 입력하세요:");
                 if (inputPwd !== null) {
-                    var key = "";
-                    try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                    if (key === ADMIN_KEY) {
+                    var hash = await sha256(inputPwd.trim()); 
+                    if (hash === ADMIN_HASH) {
                         var newText = prompt("수정할 내용을 입력하세요:", oldText);
                         if (newText !== null && newText.trim() !== "") { database.ref('markers/' + dbKey + '/logs/' + logKey).update({ text: newText.trim() }); }
                     } else { alert("비밀번호가 일치하지 않습니다."); }
                 }
             };
 
-            window.deleteLog = function(dbKey, logKey) {
+            window.deleteLog = async function(dbKey, logKey) {
                 var inputPwd = prompt("이 일지를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
                 if (inputPwd !== null) {
-                    var key = "";
-                    try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                    if (key === ADMIN_KEY) { database.ref('markers/' + dbKey + '/logs/' + logKey).remove(); } 
+                    var hash = await sha256(inputPwd.trim()); 
+                    if (hash === ADMIN_HASH) { database.ref('markers/' + dbKey + '/logs/' + logKey).remove(); } 
                     else { alert("비밀번호가 일치하지 않습니다."); }
                 }
             };
@@ -535,13 +548,11 @@
                 var actionDiv = document.createElement('div'); actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
                 var logBtn = document.createElement('button'); logBtn.className = 'btn-log-open'; logBtn.innerText = "📝 점검 및 수리 일지 보기"; logBtn.onclick = function() { openLogModal(dbKey, marker.getTooltip().getContent()); marker.closePopup(); };
                 var moveBtn = document.createElement('button'); moveBtn.innerText = "🔒 위치 이동 (잠금해제)"; moveBtn.style.padding = "8px"; moveBtn.style.marginTop = "8px"; moveBtn.style.fontSize = "13px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%";
-                moveBtn.onclick = function() { 
+                moveBtn.onclick = async function() { 
                     var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:"); 
                     if (inputPwd !== null) {
-                        var key = "";
-                        try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                        if (key === ADMIN_KEY) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } 
+                        var hash = await sha256(inputPwd.trim()); 
+                        if (hash === ADMIN_HASH) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } 
                         else { alert("비밀번호 불일치."); } 
                     }
                 };
@@ -568,13 +579,11 @@
                     if(database) database.ref('markers/' + dbKey).update({ lat: marker.getLatLng().lat, lng: marker.getLatLng().lng });
                     marker.dragging.disable(); alert("위치 변경 완료.");
                 });
-                marker.on('contextmenu', function(e) {
+                marker.on('contextmenu', async function(e) {
                     var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
                     if (inputPwd !== null) {
-                        var key = "";
-                        try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                        if (key === ADMIN_KEY) { if(database) database.ref('markers/' + dbKey).remove(); } 
+                        var hash = await sha256(inputPwd.trim()); 
+                        if (hash === ADMIN_HASH) { if(database) database.ref('markers/' + dbKey).remove(); } 
                         else { alert("비밀번호 불일치."); }
                     }
                 });
