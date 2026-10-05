@@ -26,12 +26,10 @@
         html, body { 
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; 
-            background-color: #f1f5f9; /* 비밀번호 검사 전 기본 배경색 */
+            background-color: #f1f5f9;
         }
         
-        /* ★ 화면 숨김 처리: 비밀번호 통과 전까지 화면 요소들을 아예 숨겨버립니다. */
         #app-container { display: none; width: 100%; height: 100%; }
-        
         #map { height: 100%; width: 100%; }
         
         .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); }
@@ -70,7 +68,6 @@
         .guide-list li { position: relative; padding-left: 16px; margin-bottom: 8px; font-weight: 500;}
         .guide-list li::before { content: "•"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; font-size: 18px; }
 
-        /* PC 마커 툴팁 및 팝업 */
         .custom-tooltip { background: rgba(15, 23, 42, 0.6) !important; border: none !important; color: white; font-weight: 500 !important; border-radius: 30px !important; font-size: 15px !important; padding: 6px 14px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; backdrop-filter: blur(4px); white-space: nowrap; letter-spacing: -0.3px; }
         .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { display: none !important; }
         .editable-popup { font-weight: 600 !important; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; min-width: 150px; text-align: center; font-size: 16px !important; color: #1e293b; transition: border-color 0.2s; letter-spacing: 0px; }
@@ -140,7 +137,6 @@
 </head>
 <body>
     
-    <!-- ★ 모든 UI를 감싸는 컨테이너 (비밀번호 통과 전까지 화면에 그리지 않음) -->
     <div id="app-container">
         <div class="filter-panel" id="filter-panel">
             <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')"><div class="filter-dot dot-blue"></div><div class="filter-text">시설</div></div>
@@ -153,7 +149,7 @@
         <div id="map"></div>
         
         <button id="voice-btn" class="voice-fab" onclick="startVoiceMarker()">🎙️ 현위치 음성 마킹</button>
-        <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️ 메뉴 열기</div>
+        <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺️️ 메뉴 열기</div>
 
         <div id="info-panel" class="info-panel">
             <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
@@ -199,14 +195,12 @@
     </div>
 
     <script>
-        // ★ 초안정적 암호화 (Base64 변환 방식으로 환경 의존성 완벽 제거)
-        const ACCESS_HASH = "cGluZTIwMjYh"; // pine2026!
-        const ADMIN_HASH = "MjIxMQ=="; // 2211
+        const ACCESS_HASH = "cGluZTIwMjYh"; 
+        const ADMIN_HASH = "MjIxMQ=="; 
 
         var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
-        var map; // 전역 변수로 지도 선언
+        var map; 
 
-        // 페이지 로딩 완료 후 비밀번호 체크 시작
         window.onload = function() {
             checkAccess();
         };
@@ -218,22 +212,19 @@
                 var userInput = rawInput.trim(); 
                 var inputHash = "";
                 try { 
-                    inputHash = btoa(userInput); // Base64 인코딩
+                    inputHash = btoa(userInput); 
                 } catch(e) { 
                     inputHash = "error"; 
                 }
 
                 if (inputHash !== ACCESS_HASH) {
-                    // 인증 실패: 맵 UI 그리지 않고 오류 메시지만 표시
                     document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>화면을 <b>새로고침(F5)</b>하여 다시 시도해주세요.<br><br><span style="color:#64748b; font-size:13px;">(방금 입력하신 값: ${userInput})</span></p></div>`;
                 } 
                 else {
-                    // ★ 인증 성공: 숨겨뒀던 전체 UI를 화면에 노출하고 지도 렌더링 시작
                     document.getElementById('app-container').style.display = 'block';
                     initApp(); 
                 }
             } else {
-                // 취소 버튼을 눌렀을 때
                 document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif;'><h2 style='color:#64748b;'>접속이 취소되었습니다.</h2><p>새로고침(F5)하여 다시 접속해주세요.</p></div>`;
             }
         }
@@ -282,11 +273,9 @@
             };
             try { firebase.initializeApp(firebaseConfig); var database = firebase.database(); } catch(e) {}
 
-            // 지도를 렌더링
             map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
             L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', { maxNativeZoom: 21, maxZoom: 24 }).addTo(map);
             
-            // 지도 화면 강제 새로고침 (회색 공백 방지)
             setTimeout(function(){ map.invalidateSize(); }, 500);
 
             window.startVoiceMarker = function() {
