@@ -19,8 +19,13 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- ★ Firebase 핵심 및 데이터베이스 모듈 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- ★ Firebase 로그인(Auth) 모듈 추가 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
@@ -32,10 +37,54 @@
             background-color: #f1f5f9;
         }
         
+        /* ----------------------------------------------------
+           ★ 최고급 글래스모피즘 로그인 화면 UI
+           ---------------------------------------------------- */
+        #login-container { 
+            display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            z-index: 100000; justify-content: center; align-items: center; 
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
+            padding: 40px 30px; width: 85%; max-width: 380px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .login-logo { margin-bottom: 30px; }
+        .login-logo img { max-height: 50px; margin-bottom: 15px; filter: brightness(0) invert(1); opacity: 0.9; }
+        .login-logo h2 { color: #ffffff; font-size: 24px; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
+        .login-logo p { color: #94a3b8; font-size: 14px; margin: 0; font-weight: 500; }
+
+        .login-input { 
+            width: 100%; padding: 16px; margin-bottom: 12px; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff; font-size: 16px; font-family: inherit; box-sizing: border-box;
+            transition: all 0.3s ease; outline: none;
+        }
+        .login-input::placeholder { color: #64748b; font-weight: 500; }
+        .login-input:focus { background: rgba(255, 255, 255, 0.12); border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+        
+        .login-btn-submit {
+            width: 100%; padding: 16px; margin-top: 10px; border-radius: 12px; border: none;
+            background: linear-gradient(to right, #3b82f6, #2563eb); color: white;
+            font-size: 18px; font-weight: 800; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        .login-btn-submit:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6); }
+        .login-btn-submit:active { transform: translateY(0); }
+        
+        #login-error { color: #fca5a5; font-size: 14px; font-weight: 600; margin-bottom: 15px; display: none; }
+        
+        /* ----------------------------------------------------
+           기본 앱 스타일
+           ---------------------------------------------------- */
         #app-container { display: none; width: 100%; height: 100%; position: relative; }
         #map { height: 100%; width: 100%; z-index: 1; }
         
-        /* 상단 필터 클릭 충돌 방지: z-index 최상위 및 포인터 이벤트 활성화 */
         .filter-panel { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; gap: 15px; border: 1px solid rgba(0,0,0,0.05); pointer-events: auto; }
         .filter-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.2s ease; gap: 6px; pointer-events: auto; }
         .filter-item:active { transform: scale(0.9); }
@@ -45,11 +94,13 @@
 
         .info-panel { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(8px); padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); width: 360px; box-sizing: border-box; }
         .close-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; font-size: 16px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1001; }
+        .logout-btn { position: absolute; top: 15px; left: 15px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .logout-btn:hover { background: #fecaca; }
 
         .info-toggle-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(255, 255, 255, 0.97); padding: 12px 18px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-weight: 800; font-size: 15px; cursor: pointer; display: none; align-items: center; }
         
-        .brand-logo { text-align: center; margin-bottom: 12px; margin-top: 2px; }
-        .brand-logo img { max-height: 46px; width: auto; }
+        .brand-logo-main { text-align: center; margin-bottom: 12px; margin-top: 15px; }
+        .brand-logo-main img { max-height: 46px; width: auto; }
         .panel-title { margin: 0 0 16px 0; color: #1e293b; font-size: 18px; font-weight: 900; text-align: center; }
 
         .weather-widget { background: #f8fafc; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
@@ -88,7 +139,8 @@
         .log-list { display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .log-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px; }
-        .log-date { font-size: 13px; color: #64748b; font-weight: 700; }
+        .log-date { font-size: 13px; color: #64748b; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .log-writer-badge { background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; }
         .log-actions { display: flex; gap: 6px; }
         .log-action-btn { background: #f8fafc; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
         .log-text { font-size: 14px; line-height: 1.5; word-break: break-word; font-weight: 500; }
@@ -116,9 +168,6 @@
             .search-box input { font-size: 16px !important; padding: 14px !important; } 
             .search-box button { font-size: 16px !important; padding: 0 20px !important; } 
             
-            .legend-box { padding: 15px !important; gap: 10px !important; } 
-            .legend-item { font-size: 15px !important; font-weight: 800 !important; } 
-            
             .guide-list { font-size: 16px !important; margin-bottom: 14px !important; font-weight: 600 !important; } 
             .guide-list li { margin-bottom: 8px !important; padding-left: 20px !important; }
             .guide-list li::before { font-size: 20px !important; top: -1px !important; }
@@ -128,19 +177,13 @@
             .info-toggle-btn { top: auto !important; bottom: 90px !important; right: 15px !important; padding: 14px 24px !important; font-size: 17px !important; font-weight: 900 !important; z-index: 1000; }
             .voice-fab { bottom: 20px !important; font-size: 17px !important; font-weight: 900 !important; padding: 15px 22px !important; width: 90% !important; justify-content: center !important; z-index: 1000; } 
             
-            /* 모바일 마커 글자 크기 대폭 상향 (20px) 및 시인성 강화 */
-            div.leaflet-tooltip.custom-tooltip { 
-                font-size: 20px !important; 
-                padding: 10px 18px !important; 
-                font-weight: 700 !important; 
-                background: rgba(15, 23, 42, 0.75) !important;
-                box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;
-            }
+            div.leaflet-tooltip.custom-tooltip { font-size: 20px !important; padding: 10px 18px !important; font-weight: 700 !important; background: rgba(15, 23, 42, 0.75) !important; box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;}
             .leaflet-popup-content .editable-popup { font-size: 20px !important; padding: 16px !important; font-weight: 700 !important; width: 100% !important; box-sizing: border-box !important; }
             
             .log-title { font-size: 18px !important; font-weight: 900 !important;}
             .log-action-btn { font-size: 14px !important; padding: 8px 12px !important; } 
             .log-date { font-size: 14px !important; font-weight: 700 !important; }
+            .log-writer-badge { font-size: 12px !important; padding: 3px 6px !important; }
             .log-text { font-size: 16px !important; font-weight: 600 !important; }
             .log-input { font-size: 16px !important; padding: 16px !important; }
             .log-submit-btn, .btn-log-open, .btn-yustel, .btn-condo { font-size: 16px !important; padding: 16px !important; font-weight: 800 !important; }
@@ -149,8 +192,26 @@
 </head>
 <body>
     
+    <!-- ★ 멋진 글래스모피즘 로그인 화면 -->
+    <div id="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="logo.png" alt="파인리조트 로고" onerror="this.style.display='none'">
+                <h2>스마트파인 관제</h2>
+                <p>현장 통합 관리 플랫폼</p>
+            </div>
+            
+            <input type="email" id="login-email" class="login-input" placeholder="부서 아이디 (예: sisul@pine.com)" onkeypress="if(event.keyCode==13) document.getElementById('login-password').focus();">
+            <input type="password" id="login-password" class="login-input" placeholder="비밀번호를 입력하세요" onkeypress="if(event.keyCode==13) doLogin();">
+            
+            <div id="login-error">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+            
+            <button class="login-btn-submit" onclick="doLogin()">안전하게 접속하기</button>
+        </div>
+    </div>
+
+    <!-- 앱 메인 화면 (로그인 성공 시 노출) -->
     <div id="app-container">
-        
         <div class="filter-panel" id="filter-panel">
             <div class="filter-item" id="filter-blue" onclick="toggleFilter('blue')"><div class="filter-dot dot-blue"></div><div class="filter-text">시설</div></div>
             <div class="filter-item" id="filter-red" onclick="toggleFilter('red')"><div class="filter-dot dot-red"></div><div class="filter-text">안전</div></div>
@@ -165,8 +226,9 @@
         <div id="info-toggle" class="info-toggle-btn" onclick="togglePanel()">🗺 메뉴 열기</div>
 
         <div id="info-panel" class="info-panel">
+            <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
             <button class="close-btn" onclick="togglePanel()" title="설명창 숨기기">✖</button>
-            <div class="brand-logo"><img src="logo.png" alt="파인리조트 로고"></div>
+            <div class="brand-logo-main"><img src="logo.png" alt="파인리조트 로고" onerror="this.style.display='none'"></div>
             <h3 class="panel-title">시설물 종합 관리 맵</h3>
             
             <div class="weather-widget">
@@ -208,49 +270,92 @@
     </div>
 
     <script>
-        // 주석을 완벽히 제거하여 외부에서 암호 원본을 절대 유추할 수 없게 처리
-        const ACCESS_HASH = "cGluZTIwMjYh"; 
+        // ★ 관리자(소장님) 전용 권한 잠금 (마커 이동/삭제용 보호 장치 유지)
         const ADMIN_HASH = "MjIxMQ=="; 
 
         var activeFilters = { 'blue': true, 'red': true, 'orange': true, 'green': true, 'lamp': true };
         var map; 
+        var database;
+        var auth;
+        var appInitialized = false;
 
-        window.onload = function() {
-            checkAccess();
+        const firebaseConfig = {
+            apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
+            authDomain: "pine-map-4a6a3.firebaseapp.com",
+            databaseURL: "https://pine-map-4a6a3-default-rtdb.firebaseio.com",
+            projectId: "pine-map-4a6a3",
+            storageBucket: "pine-map-4a6a3.firebasestorage.app",
+            messagingSenderId: "304287623721",
+            appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
         };
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            database = firebase.database(); 
+            auth = firebase.auth();
+        } catch(e) {}
 
-        function checkAccess() {
-            var rawInput = prompt("보안구역입니다. 시설물 관리맵 접속 비밀번호를 입력하세요:");
-            
-            if (rawInput !== null) {
-                var userInput = rawInput.trim(); 
-                var inputHash = "";
-                try { 
-                    inputHash = btoa(userInput); 
-                } catch(e) { 
-                    inputHash = "error"; 
-                }
-
-                if (inputHash !== ACCESS_HASH) {
-                    document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif; color:#2d3748;'><h2 style='color:#e53e3e; font-size:24px;'>⛔ 접근 권한이 없습니다.</h2><p style='font-size:16px;'>비밀번호가 일치하지 않습니다.<br>화면을 <b>새로고침(F5)</b>하여 다시 시도해주세요.<br><br><span style="color:#64748b; font-size:13px;">(방금 입력하신 값: ${userInput})</span></p></div>`;
-                } 
-                else {
-                    document.getElementById('app-container').style.display = 'block';
-                    initApp(); 
+        // ★ Firebase 로그인 상태 감지기 (인증 성공 시 화면 열기)
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                if(!appInitialized) {
+                    initApp();
+                    appInitialized = true;
                 }
             } else {
-                document.body.innerHTML = `<div style='text-align:center; padding-top:20vh; font-family:sans-serif;'><h2 style='color:#64748b;'>접속이 취소되었습니다.</h2><p>새로고침(F5)하여 다시 접속해주세요.</p></div>`;
+                document.getElementById('login-container').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
             }
+        });
+
+        // ★ 로그인 버튼 클릭 함수
+        window.doLogin = function() {
+            var email = document.getElementById('login-email').value.trim();
+            var pwd = document.getElementById('login-password').value.trim();
+            var errDiv = document.getElementById('login-error');
+            
+            if(!email || !pwd) {
+                errDiv.innerText = "부서 아이디와 비밀번호를 모두 입력해주세요.";
+                errDiv.style.display = "block";
+                return;
+            }
+            errDiv.style.display = "none";
+            
+            auth.signInWithEmailAndPassword(email, pwd).catch(function(error) {
+                errDiv.innerText = "아이디 또는 비밀번호가 올바르지 않습니다.";
+                errDiv.style.display = "block";
+            });
+        };
+
+        // ★ 로그아웃 버튼 클릭 함수
+        window.doLogout = function() {
+            if(confirm("시스템에서 안전하게 로그아웃 하시겠습니까?")) {
+                auth.signOut();
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+            }
+        };
+
+        // ★ 로그인한 계정의 부서 이름 자동 번역 기능
+        function getAuthorName() {
+            var user = auth.currentUser;
+            if(!user) return "알수없음";
+            var emailPrefix = user.email.split('@')[0];
+            var nameMap = {
+                'mirae': '미래개발(원청)',
+                'sisul': '에스텍(시설)',
+                'golf': '에스텍(골프)',
+                'course': '코스관리부',
+                'game': '경기과'
+            };
+            return nameMap[emailPrefix] || emailPrefix;
         }
 
         window.toggleFilter = function(colorGroup) {
             activeFilters[colorGroup] = !activeFilters[colorGroup]; 
             var btn = document.getElementById('filter-' + colorGroup);
-            if (activeFilters[colorGroup]) { 
-                btn.classList.remove('off'); 
-            } else { 
-                btn.classList.add('off'); 
-            }
+            if (activeFilters[colorGroup]) { btn.classList.remove('off'); } else { btn.classList.add('off'); }
             refreshMarkersDisplay();
         };
 
@@ -259,343 +364,4 @@
                 var marker = window.markerLayers[key]; 
                 var c = marker.customColor;
                 var group = (c === 'lamp-on' || c === 'lamp-off') ? 'lamp' : c;
-                
-                if (activeFilters[group]) { 
-                    if (!markersGroup.hasLayer(marker)) { markersGroup.addLayer(marker); } 
-                } else { 
-                    if (markersGroup.hasLayer(marker)) { markersGroup.removeLayer(marker); } 
-                }
-            }
-        }
-
-        function updateDateAndWeather() {
-            var now = new Date(); var days = ['일', '월', '화', '수', '목', '금', '토'];
-            document.getElementById('current-date').innerText = "📅 " + (now.getMonth() + 1) + "월 " + now.getDate() + "일 (" + days[now.getDay()] + ")";
-            var weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=37.2115&longitude=127.2940&current=temperature_2m,weather_code&timezone=Asia%2FSeoul";
-            fetch(weatherUrl).then(res => res.json()).then(data => {
-                var temp = Math.round(data.current.temperature_2m); var code = data.current.weather_code;
-                var wText = "맑음"; var icon = "☀️";
-                if (code <= 2) { wText = "구름조금"; icon = "🌤️"; } else if (code === 3) { wText = "흐림"; icon = "☁️"; } else if (code >= 45 && code <= 48) { wText = "안개"; icon = "🌫️"; } else if (code >= 51 && code <= 67) { wText = "비"; icon = "🌧️"; } else if (code >= 71 && code <= 77) { wText = "눈"; icon = "❄️"; } else if (code >= 80 && code <= 82) { wText = "소나기"; icon = "🌦️"; } else if (code >= 95) { wText = "뇌우"; icon = "⚡"; }
-                document.getElementById('current-weather').innerHTML = icon + " " + wText + " <span>" + temp + "℃</span>";
-            }).catch(() => { document.getElementById('current-weather').innerText = "🌤️ 확인불가"; });
-        }
-
-        window.currentOtterMarker = null;
-
-        function initApp() {
-            updateDateAndWeather(); 
-
-            const firebaseConfig = {
-                apiKey: "AIzaSyANIEY_f9mvizaBnsIpwHWbQ5Qknt7jx1s",
-                authDomain: "pine-map-4a6a3.firebaseapp.com",
-                databaseURL: "https://pine-map-4a6a3-default-rtdb.firebaseio.com",
-                projectId: "pine-map-4a6a3",
-                storageBucket: "pine-map-4a6a3.firebasestorage.app",
-                messagingSenderId: "304287623721",
-                appId: "1:304287623721:web:a7f284b920ccf74eae0a38"
-            };
-            try { firebase.initializeApp(firebaseConfig); var database = firebase.database(); } catch(e) {}
-
-            map = L.map('map', { maxZoom: 24, tap: false }).setView([37.2115, 127.2940], 16);
-            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&hl=ko', { maxNativeZoom: 21, maxZoom: 24 }).addTo(map);
-            
-            setTimeout(function(){ map.invalidateSize(); }, 500);
-
-            window.startVoiceMarker = function() {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("현재 브라우저는 음성 인식을 지원하지 않습니다."); return; }
-                var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                var recognition = new SpeechRecognition(); recognition.lang = 'ko-KR'; recognition.interimResults = false;
-                var voiceBtn = document.getElementById('voice-btn');
-                
-                if ("geolocation" in navigator) {
-                    voiceBtn.innerHTML = "⏳ GPS 위치 찾는 중..."; voiceBtn.style.backgroundColor = "#f59e0b"; 
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        var lat = position.coords.latitude; var lng = position.coords.longitude;
-                        voiceBtn.innerHTML = "🎙️ 말씀하세요! (듣는 중...)"; voiceBtn.style.backgroundColor = "#ef4444"; 
-                        recognition.start();
-                        recognition.onresult = function(event) {
-                            var spokenText = event.results[0][0].transcript;
-                            var initialColor = (spokenText.includes('가로등') || spokenText.includes('조명')) ? 'lamp-off' : 'blue';
-                            if(database) {
-                                database.ref('markers').push().set({ lat: lat, lng: lng, text: spokenText, color: initialColor }).then(function() {
-                                    alert("✅ 현위치에 마커 추가됨: " + spokenText); map.setView([lat, lng], 20);
-                                });
-                            }
-                            resetVoiceBtn();
-                        };
-                        recognition.onerror = function() { resetVoiceBtn(); };
-                        recognition.onend = function() { resetVoiceBtn(); };
-                    }, function() { alert("GPS 권한을 허용해주세요."); resetVoiceBtn(); }, { enableHighAccuracy: true }); 
-                }
-                function resetVoiceBtn() { voiceBtn.innerHTML = "🎙️ 현위치 음성 마킹"; voiceBtn.style.backgroundColor = "#8b5cf6"; }
-            };
-
-            var iconOptions = { iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] };
-            var lampOffIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40"><rect x="13" y="14" width="4" height="26" rx="1" fill="#64748b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#475569"/><circle cx="15" cy="14" r="5" fill="#cbd5e1"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
-            var lampOnIcon = L.divIcon({ html: `<div style="text-align:center;"><svg width="30" height="40" viewBox="0 0 30 40"><defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/><stop offset="100%" stop-color="#fef08a" stop-opacity="0"/></radialGradient></defs><circle cx="15" cy="14" r="15" fill="url(#glow)"/><rect x="13" y="14" width="4" height="26" rx="1" fill="#1e293b"/><path d="M 8 14 C 8 4 22 4 22 14 Z" fill="#0f172a"/><circle cx="15" cy="14" r="5" fill="#fde047" filter="drop-shadow(0 0 4px #eab308)"/></svg></div>`, className: 'lamp-marker', iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -35] });
-
-            var icons = {
-                'blue': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'red': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'orange': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'green': new L.Icon(Object.assign({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png' }, iconOptions)),
-                'lamp-off': lampOffIcon, 'lamp-on': lampOnIcon
-            };
-
-            window.markersGroup = L.layerGroup().addTo(map); 
-            window.markerLayers = {}; 
-
-            window.downloadExcel = function() {
-                var keys = Object.keys(window.markerLayers);
-                if(keys.length === 0) { alert("저장된 시설물이 없습니다."); return; }
-                var colorNameMap = { 'red': '🚨 안전 위험', 'orange': '🚧 유지 보수', 'blue': '🔹 일반 시설', 'green': '✅ 조치 완료', 'lamp-on': '💡 가로등(ON)', 'lamp-off': '⚫ 가로등(OFF)' };
-                var colorPriority = { 'red': 1, 'orange': 2, 'lamp-on': 3, 'lamp-off': 4, 'blue': 5, 'green': 6 }; 
-                var exportList = []; var logExportList = [];
-                keys.forEach(function(key) {
-                    var marker = window.markerLayers[key]; var text = marker.getTooltip().getContent() || ""; var color = marker.customColor || 'blue'; 
-                    exportList.push({ status: colorNameMap[color], name: text, priority: colorPriority[color] });
-                    if (marker.logs) {
-                        var logKeys = Object.keys(marker.logs); logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
-                        logKeys.forEach(function(lk) { logExportList.push([text, marker.logs[lk].date, marker.logs[lk].text]); });
-                    }
-                });
-                exportList.sort(function(a, b) { return a.priority - b.priority; });
-                var excelData1 = [["상태 분류", "시설물 / 지점명", "비고"]]; exportList.forEach(function(item) { excelData1.push([item.status, item.name, ""]); });
-                var excelData2 = [["시설물 / 지점명", "점검/수리 일시", "점검/수리 상세 내역"]]; logExportList.forEach(function(item) { excelData2.push(item); });
-                if (logExportList.length === 0) { excelData2.push(["-", "-", "기록된 점검/수리 내역이 없습니다."]); }
-                var wb = XLSX.utils.book_new();
-                var ws1 = XLSX.utils.aoa_to_sheet(excelData1); ws1['!cols'] = [ {wch: 18}, {wch: 35}, {wch: 30} ]; XLSX.utils.book_append_sheet(wb, ws1, "현황 요약");
-                var ws2 = XLSX.utils.aoa_to_sheet(excelData2); ws2['!cols'] = [ {wch: 30}, {wch: 22}, {wch: 50} ]; XLSX.utils.book_append_sheet(wb, ws2, "점검 및 수리 대장");
-                var today = new Date(); var dateTitle = today.getFullYear() + "년" + (today.getMonth()+1) + "월" + today.getDate() + "일";
-                XLSX.writeFile(wb, "양지파인_시설현황및수리대장_" + dateTitle + ".xlsx");
-            };
-
-            window.togglePanel = function() {
-                var panel = document.getElementById('info-panel'); var toggleBtn = document.getElementById('info-toggle');
-                if (panel.style.display === 'none') { panel.style.display = 'block'; toggleBtn.style.display = 'none'; } else { panel.style.display = 'none'; toggleBtn.style.display = 'flex'; }
-            };
-
-            window.searchMarker = function() {
-                var keyword = document.getElementById('searchInput').value.trim();
-                if (!keyword) { alert("검색할 이름을 입력해주세요."); return; }
-                for (var key in window.markerLayers) {
-                    if ((window.markerLayers[key].getTooltip().getContent() || "").includes(keyword)) {
-                        map.setView(window.markerLayers[key].getLatLng(), 20); window.markerLayers[key].openPopup();
-                        if(window.innerWidth <= 1024) togglePanel(); return; 
-                    }
-                }
-                alert("'" + keyword + "' 지점을 찾을 수 없습니다.");
-            };
-
-            window.openLogModal = function(dbKey, facilityName) {
-                window.currentLogDbKey = dbKey; document.getElementById('log-title').innerText = "📝 " + facilityName + " 일지";
-                document.getElementById('log-modal').style.display = 'flex'; document.getElementById('log-input-text').value = ""; renderLogList(dbKey);
-            };
-            window.closeLogModal = function() { document.getElementById('log-modal').style.display = 'none'; window.currentLogDbKey = null; };
-            
-            window.submitLog = function() {
-                if (!window.currentLogDbKey) return;
-                var text = document.getElementById('log-input-text').value.trim(); if (!text) { alert("수리/점검 내용을 입력해주세요."); return; }
-                var now = new Date(); var dateString = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,'0') + "-" + String(now.getDate()).padStart(2,'0') + " " + String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
-                if (database) {
-                    database.ref('markers/' + window.currentLogDbKey + '/logs').push({ date: dateString, text: text }).then(function() { document.getElementById('log-input-text').value = ""; });
-                }
-            };
-
-            window.editLog = function(dbKey, logKey) {
-                var marker = window.markerLayers[dbKey];
-                if (!marker || !marker.logs || !marker.logs[logKey]) return;
-                var oldText = marker.logs[logKey].text;
-                
-                var inputPwd = prompt("일지를 수정하려면 관리자 비밀번호를 입력하세요:");
-                if (inputPwd !== null) {
-                    var key = "";
-                    try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                    if (key === ADMIN_HASH) {
-                        var newText = prompt("수정할 내용을 입력하세요:", oldText);
-                        if (newText !== null && newText.trim() !== "") { database.ref('markers/' + dbKey + '/logs/' + logKey).update({ text: newText.trim() }); }
-                    } else { alert("비밀번호가 일치하지 않습니다."); }
-                }
-            };
-
-            window.deleteLog = function(dbKey, logKey) {
-                var inputPwd = prompt("이 일지를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                if (inputPwd !== null) {
-                    var key = "";
-                    try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                    if (key === ADMIN_HASH) { database.ref('markers/' + dbKey + '/logs/' + logKey).remove(); } 
-                    else { alert("비밀번호가 일치하지 않습니다."); }
-                }
-            };
-
-            function renderLogList(dbKey) {
-                var listDiv = document.getElementById('log-list'); listDiv.innerHTML = ""; var marker = window.markerLayers[dbKey];
-                if (!marker || !marker.logs) { listDiv.innerHTML = `<div class="log-empty">아직 기록된 점검/수리 이력이 없습니다.</div>`; return; }
-                var logKeys = Object.keys(marker.logs); 
-                logKeys.sort(function(a, b) { return new Date(marker.logs[b].date) - new Date(marker.logs[a].date); });
-                logKeys.forEach(function(lk) {
-                    var logData = marker.logs[lk];
-                    var itemHTML = `
-                        <div class="log-item">
-                            <div class="log-date-row">
-                                <div class="log-date">${logData.date}</div>
-                                <div class="log-actions">
-                                    <button class="log-action-btn" onclick="editLog('${dbKey}', '${lk}')">✏️수정</button>
-                                    <button class="log-action-btn" onclick="deleteLog('${dbKey}', '${lk}')">🗑️삭제</button>
-                                </div>
-                            </div>
-                            <div class="log-text">${logData.text.replace(/\n/g, '<br>')}</div>
-                        </div>
-                    `;
-                    listDiv.insertAdjacentHTML('beforeend', itemHTML);
-                });
-            }
-
-            function createDraggableMarker(dbKey, lat, lng, nameText, colorType) {
-                if(window.markerLayers[dbKey]) return; 
-
-                var marker = L.marker([lat, lng], { icon: icons[colorType], draggable: false });
-                marker.customColor = colorType; marker.logs = null; 
-                var tooltipOffset = colorType.startsWith('lamp') ? [15, -20] : [1, -34];
-                marker.bindTooltip(nameText, { permanent: true, direction: 'right', className: 'custom-tooltip', offset: tooltipOffset });
-
-                var popupContent = document.createElement('div');
-                var textDiv = document.createElement('div'); textDiv.id = 'popup-text-' + dbKey; textDiv.className = 'editable-popup'; textDiv.contentEditable = true; textDiv.innerText = nameText;
-                textDiv.addEventListener('input', function() { marker.setTooltipContent(this.innerText); if(database) database.ref('markers/' + dbKey).update({ text: this.innerText }); });
-                popupContent.appendChild(textDiv);
-                
-                var colorDiv = document.createElement('div'); colorDiv.style.marginTop = '12px'; colorDiv.style.textAlign = 'center';
-
-                if (colorType.startsWith('lamp')) {
-                    var onBtn = document.createElement('button'); onBtn.innerText = "💡 켜기(ON)";
-                    onBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#facc15"; onBtn.style.color = "#422006"; onBtn.style.fontWeight = "bold"; onBtn.style.cursor = "pointer";
-                    var offBtn = document.createElement('button'); offBtn.innerText = "⚫ 끄기(OFF)";
-                    offBtn.style.padding = "8px 10px"; onBtn.style.margin = "0 4px"; onBtn.style.borderRadius = "6px"; onBtn.style.border = "none"; onBtn.style.backgroundColor = "#475569"; offBtn.style.color = "white"; offBtn.style.fontWeight = "bold"; offBtn.style.cursor = "pointer";
-
-                    onBtn.onclick = function() { 
-                        marker.setIcon(icons['lamp-on']); marker.customColor = 'lamp-on'; 
-                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-on' }); 
-                        refreshMarkersDisplay(); 
-                    };
-                    offBtn.onclick = function() { 
-                        marker.setIcon(icons['lamp-off']); marker.customColor = 'lamp-off'; 
-                        if(database) database.ref('markers/' + dbKey).update({ color: 'lamp-off' }); 
-                        refreshMarkersDisplay(); 
-                    };
-                    colorDiv.appendChild(onBtn); colorDiv.appendChild(offBtn);
-                } 
-                else {
-                    var colors = ['blue', 'red', 'orange', 'green'];
-                    var colorHex = {'blue':'#3b82f6', 'red':'#ef4444', 'orange':'#f97316', 'green':'#22c55e'}; 
-                    colors.forEach(function(c) {
-                        var btn = document.createElement('button'); btn.style.backgroundColor = colorHex[c];
-                        btn.style.border = '2px solid transparent'; btn.style.width = '26px'; btn.style.height = '26px';
-                        btn.style.borderRadius = '50%'; btn.style.margin = '0 4px'; btn.style.cursor = 'pointer';
-                        btn.onclick = function() { 
-                            marker.setIcon(icons[c]); marker.customColor = c; 
-                            if(database) database.ref('markers/' + dbKey).update({ color: c }); 
-                            refreshMarkersDisplay(); 
-                        };
-                        colorDiv.appendChild(btn);
-                    });
-                }
-                popupContent.appendChild(colorDiv);
-
-                var actionDiv = document.createElement('div'); actionDiv.style.marginTop = '15px'; actionDiv.style.textAlign = 'center';
-                var logBtn = document.createElement('button'); logBtn.className = 'btn-log-open'; logBtn.innerText = "📝 점검 및 수리 일지 보기"; logBtn.onclick = function() { openLogModal(dbKey, marker.getTooltip().getContent()); marker.closePopup(); };
-                var moveBtn = document.createElement('button'); moveBtn.innerText = "🔒 위치 이동 (잠금해제)"; moveBtn.style.padding = "8px"; moveBtn.style.marginTop = "8px"; moveBtn.style.fontSize = "13px"; moveBtn.style.fontWeight = "600"; moveBtn.style.backgroundColor = "#1e293b"; moveBtn.style.color = "white"; moveBtn.style.border = "none"; moveBtn.style.borderRadius = "6px"; moveBtn.style.cursor = "pointer"; moveBtn.style.width = "100%";
-                moveBtn.onclick = function() { 
-                    var inputPwd = prompt("마커를 이동하려면 관리자 비밀번호를 입력하세요:"); 
-                    if (inputPwd !== null) {
-                        var key = "";
-                        try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                        if (key === ADMIN_HASH) { marker.dragging.enable(); marker.closePopup(); alert("잠금이 해제되었습니다."); } 
-                        else { alert("비밀번호 불일치."); } 
-                    }
-                };
-                
-                actionDiv.appendChild(logBtn);
-                
-                if (nameText.includes('오렌지동') || nameText.includes('그린동')) {
-                    var yustelBtn = document.createElement('button'); yustelBtn.className = 'btn-yustel'; yustelBtn.innerText = "🏢 유스텔 관리 프로그램 열기"; yustelBtn.onclick = function() { window.open('https://bchwang.github.io/yangji24/', '_blank'); marker.closePopup(); };
-                    actionDiv.appendChild(yustelBtn);
-                }
-                
-                if (nameText.includes('콘도')) {
-                    var condoBtn = document.createElement('button'); 
-                    condoBtn.className = 'btn-condo'; 
-                    condoBtn.innerText = "🏨 콘도 객실 관리 열기"; 
-                    condoBtn.onclick = function() { window.open('https://bchwang.github.io/yangji20/', '_blank'); marker.closePopup(); };
-                    actionDiv.appendChild(condoBtn);
-                }
-
-                actionDiv.appendChild(moveBtn); popupContent.appendChild(actionDiv);
-                marker.bindPopup(popupContent);
-
-                marker.on('dragend', function(e) {
-                    if(database) database.ref('markers/' + dbKey).update({ lat: marker.getLatLng().lat, lng: marker.getLatLng().lng });
-                    marker.dragging.disable(); alert("위치 변경 완료.");
-                });
-                marker.on('contextmenu', function(e) {
-                    var inputPwd = prompt("마커를 완전히 삭제하시겠습니까?\n관리자 비밀번호를 입력하세요:");
-                    if (inputPwd !== null) {
-                        var key = "";
-                        try { key = btoa(inputPwd.trim()); } catch(e) { key = "invalid"; }
-
-                        if (key === ADMIN_HASH) { if(database) database.ref('markers/' + dbKey).remove(); } 
-                        else { alert("비밀번호 불일치."); }
-                    }
-                });
-
-                window.markerLayers[dbKey] = marker;
-                
-                var group = (colorType === 'lamp-on' || colorType === 'lamp-off') ? 'lamp' : colorType;
-                if (activeFilters[group]) { window.markersGroup.addLayer(marker); }
-            }
-
-            if(database) {
-                var markersRef = database.ref('markers');
-                markersRef.on('child_added', function(snapshot) {
-                    var data = snapshot.val();
-                    createDraggableMarker(snapshot.key, data.lat, data.lng, data.text, data.color);
-                    if(data.logs) { window.markerLayers[snapshot.key].logs = data.logs; }
-                });
-                markersRef.on('child_changed', function(snapshot) {
-                    var data = snapshot.val(); var marker = window.markerLayers[snapshot.key];
-                    if (marker) {
-                        marker.setLatLng([data.lat, data.lng]); 
-                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) { window.currentOtterMarker.setLatLng([data.lat, data.lng]); }
-                        if (marker.getTooltip().getContent() !== data.text) { marker.setTooltipContent(data.text); }
-                        marker.setIcon(icons[data.color]); marker.customColor = data.color; 
-                        marker.logs = data.logs || null;
-                        
-                        if (window.currentLogDbKey === snapshot.key) { renderLogList(snapshot.key); }
-                        
-                        var activeTextDiv = document.getElementById('popup-text-' + snapshot.key);
-                        if (activeTextDiv && document.activeElement !== activeTextDiv) { activeTextDiv.innerText = data.text; }
-                        refreshMarkersDisplay(); 
-                    }
-                });
-                markersRef.on('child_removed', function(snapshot) {
-                    var marker = window.markerLayers[snapshot.key];
-                    if (marker) {
-                        if (window.currentOtterMarker && window.currentOtterMarker.targetId === snapshot.key) { map.removeLayer(window.currentOtterMarker); window.currentOtterMarker = null; }
-                        window.markersGroup.removeLayer(marker); delete window.markerLayers[snapshot.key];
-                    }
-                });
-            }
-
-            map.on('click', function(e) {
-                var newName = prompt("지점 이름 입력\n(💡 '가로등', '오렌지동', '그린동', '콘도' 등 핵심 단어 포함 권장)");
-                if (newName && newName.trim() !== "" && database) {
-                    var initialColor = (newName.includes('가로등') || newName.includes('조명')) ? 'lamp-off' : 'blue'; 
-                    database.ref('markers').push().set({ lat: e.latlng.lat, lng: e.latlng.lng, text: newName, color: initialColor });
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+                if (
